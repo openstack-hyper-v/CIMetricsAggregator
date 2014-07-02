@@ -1,0 +1,17 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Reports:</h1>
+{% if workers %}
+   <ul>
+   {% for worker in workers %}
+      <li><a href="/static/load.php?p={{ worker.worker }}">{{ worker.worker }}</a></li>
+   {% endfor %}
+   </ul>
+{% else %}
+   <p> No data available!</p>
+{% endif %}
+<hr \>
+<p>Copyright 2014 Gabriel Loewen</p>
+</body>

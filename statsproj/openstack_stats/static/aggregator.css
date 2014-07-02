@@ -1,0 +1,97 @@
+* {
+   margin: 0;
+   padding: 0;
+}
+body, html {
+   margin: 0;
+   padding: 0;
+   height: 100%;
+}
+
+#content {
+   width: 100%;
+   height: 100%;
+}
+
+.tickLabel {
+   font-size: 80%;
+}
+
+#novaInfo, #neutronInfo {
+   font-size: 10pt;
+   width: 150px;
+   text-align: center;
+   padding-right: 10px;
+}
+
+#sidebar {
+   background-color: #eee;
+   padding-left: 10px;
+   height: 100%;
+   width: 225px;
+   float: left;
+   overflow-y: scroll;
+   overflow-x: hidden;
+}
+
+#affected {
+   white-space: nowrap;
+}
+
+#affected li {
+   font-size: 8pt;
+}
+
+#main {
+   height: auto;
+   padding-left: 235px;
+   padding-top: 20px;
+}
+
+#highlighted {
+   color: #fff;
+   background-color: #000;
+   margin:0;
+   padding: 2px;
+}
+
+#main form {
+   border-bottom: 1px solid #eee;
+   padding-bottom: 20px;
+   padding-left: 20px;
+   margin-bottom: 20px;
+}
+
+#main h3, p {
+   margin-left: 20px;
+}
+
+.graphtable {
+   width: 100%;
+   min-width: 600px;
+}
+
+.piechart {
+   display: table-cell;
+   padding: 5px;
+   margin: 10px;
+   width: 300px;
+   height: 200px;
+}
+
+.pielabel {
+   color: #fff;
+   padding: 2px;
+   font-size: 10pt;
+}
+
+.linechart {
+   display: block;
+   margin: 10px;
+   width: 100%;
+   height: 200px;
+}
+
+#ui-datepicker-div {
+   display: none;
+}
