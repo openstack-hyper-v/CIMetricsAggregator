@@ -60,8 +60,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Metrics',
-        'USER': 'root',
-        'PASSWORD': 'Openstack!',
+        'USER': 'YOURUSERNAME',
+        'PASSWORD': 'YOURPASSWORD',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -85,7 +85,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/gabriel/statsproj/openstack_stats/static'
+STATIC_ROOT = '/CIMetricsAggregator/statsproj/openstack_stats/static'
 STATICFILES_FINDERS = (
 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 'django.contrib.staticfiles.finders.FileSystemFinder',
