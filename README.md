@@ -5,6 +5,6 @@ Tool for aggregating and caching metrics regarding Openstack CI testing results 
 
 Dependencies
 ============
-MariaDB (or MySQL) server
-Django 1.6.5
+MariaDB (or MySQL) server<br />
+Django 1.6.5<br />
 nginx
