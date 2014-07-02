@@ -8,3 +8,5 @@ Dependencies
 MariaDB (or MySQL) server<br />
 Django 1.6.5<br />
 nginx
+
+Copyright 2014 Gabriel Loewen
