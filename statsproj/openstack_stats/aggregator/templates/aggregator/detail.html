@@ -268,15 +268,6 @@
          <h2>Successes: {{ totalsuccess.count }}</h2>
          <h2>Failures: {{ totalfail.count }}</h2>
          <h2>Misses: {{ totalmissed.count }}</h2>
-         <br />
-         <div id="affected">
-         <h3>Affected Projects</h3>
-         <ul>
-            {% for item in projects %}
-	    <li>{{ item.project }}</li>
-	    {% endfor %}
-	    </ul>
-         </div>
       {% else %}
          <p> No data available!</p>
       {% endif %}

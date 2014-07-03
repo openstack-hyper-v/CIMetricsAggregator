@@ -34,14 +34,6 @@ body, html {
    overflow-x: hidden;
 }
 
-#affected {
-   white-space: nowrap;
-}
-
-#affected li {
-   font-size: 8pt;
-}
-
 #main {
    height: auto;
    padding-left: 235px;

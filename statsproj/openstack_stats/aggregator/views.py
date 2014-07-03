@@ -69,7 +69,6 @@ def detail(request, name):
       'neutronmiss': neutronMiss,
       'start': startDate,
       'end': endDate,
-      'projects': data.values('project').distinct(),
    }
 
    return render_to_response("aggregator/detail.html", context, context_instance = RequestContext(request))
