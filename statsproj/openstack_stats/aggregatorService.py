@@ -45,9 +45,7 @@ def getChanges(project):
 def mergeDetails(cids, worker, project):
    data = []
    missed = []
-   count = 0
    for cid in cids:
-      found = 0
       res = getGerritChangeRequest(cid)
       parser = ijson.parse(res)
       author = ''
@@ -55,8 +53,6 @@ def mergeDetails(cids, worker, project):
       time = ''
       patch = ''
       missedpatch = ''
-      count += 1
-      print "(%s - %s): Completed %d / %d" % (worker,project,count,len(cids))
       for prefix, event, value in parser:
          if prefix == 'messages.item.author.name':
             author = value
@@ -68,17 +64,17 @@ def mergeDetails(cids, worker, project):
             if 'patch' in dat[0].lower():
                patch = dat[0].split()
                patch = re.sub("[^0-9]","",patch[len(patch)-1])
-            if 'success' in value.lower() or 'succeed' in value.lower():
+            if 'build successful' in value.lower() or 'build succeeded' in value.lower():
                success = True 
+            elif 'build failed' in value.lower() or 'build unsuccessful' in value.lower():
+               success = False
             else:
-               if 'fail' not in value.lower():
-                  continue
+               continue
             try:
                item = [int(cid),int(patch),date.date(),date.time(),success]
                data += [item] 
             except:
                continue
-            success = False
          elif prefix == 'messages.item.message' and author != worker:
             dat = value.strip().split(':')
             if 'patch' in dat[0].lower():
