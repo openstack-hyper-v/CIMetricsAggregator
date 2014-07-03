@@ -70,6 +70,9 @@ def mergeDetails(cids, worker, project):
                patch = re.sub("[^0-9]","",patch[len(patch)-1])
             if 'success' in value.lower() or 'succeed' in value.lower():
                success = True 
+            else:
+               if 'fail' not in value.lower():
+                  continue
             try:
                item = [int(cid),int(patch),date.date(),date.time(),success]
                data += [item] 
