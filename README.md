@@ -17,7 +17,7 @@ Tips and Tricks
 You must enter the correct username/passwork into openstack-stats/settings.py for the MariaDB/MySQL database.  Then, to generate the appropriate database structure, execute the following:<br />
 <code>
     python manage.py syncdb
-</code>
+</code><br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.
 
 Copyright 2014 Gabriel Loewen
