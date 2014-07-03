@@ -15,8 +15,8 @@ uwsgi
 Tips and Tricks
 ===============
 You must enter the correct username/passwork into openstack-stats/settings.py for the MariaDB/MySQL database.  Then, to generate the appropriate database structure, execute the following:
-<pre><code>
+<code>
     python manage.py syncdb
-</code></pre>
+</code>
 
 Copyright 2014 Gabriel Loewen
