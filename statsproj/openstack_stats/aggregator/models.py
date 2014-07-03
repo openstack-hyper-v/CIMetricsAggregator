@@ -17,4 +17,4 @@ class Change(models.Model):
    success = models.BooleanField()
    missed = models.BooleanField()
    def __unicode__(self):
-      return self.worker + " : " + self.project + " : " + ("Failure","Success")[self.success == True]
+      return '('+str(self.cid)+','+str(self.pid)+') ' + self.worker + " : " + self.project + " : " + ("Failure","Success")[self.success == True]

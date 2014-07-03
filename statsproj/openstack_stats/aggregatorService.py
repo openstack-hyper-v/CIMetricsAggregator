@@ -147,6 +147,8 @@ def foundIn(item, objects):
          return True
    return False
 
+# Look for any jobs marked as missed that were later submitted
+# (i.e. fix up the false negatives)
 def fixup(project,worker, change):
    missed = change.objects.filter(project=project,worker=worker,missed=True)
    unMissed = change.objects.filter(project=project,worker=worker,missed=False)
@@ -171,4 +173,4 @@ if __name__ == "__main__":
       # join threads
       for thread in threads:
          thread.join()
-      sleep(1800)
+      sleep(7200) # sleep 2 hours

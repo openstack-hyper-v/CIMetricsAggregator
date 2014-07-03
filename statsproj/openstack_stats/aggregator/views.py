@@ -25,7 +25,7 @@ def detail(request, name):
       startDate = request.POST.get("start","")
       endDate = request.POST.get("end","")
    s = datetime.strptime(startDate,'%Y-%m-%d')
-   e = datetime.strptime(endDate,'%Y-%m-%d') + timedelta(days=1)
+   e = datetime.strptime(endDate,'%Y-%m-%d')
    data = data.filter(date__range=[s, e])
 
    novaData = data.filter(project="openstack/nova")
@@ -43,18 +43,18 @@ def detail(request, name):
    totalMissed = data.filter(missed=True)
 
    for d in novaSuccess:
-      d.date = int((d.date + timedelta(days=1)).strftime('%s'))*1000
+      d.date = int(d.date.strftime('%s'))*1000
    for d in novaFail:
-      d.date = int((d.date + timedelta(days=1)).strftime('%s'))*1000
+      d.date = int(d.date.strftime('%s'))*1000
    for d in novaMiss:
-      d.date = int((d.date + timedelta(days=1)).strftime('%s'))*1000
+      d.date = int(d.date.strftime('%s'))*1000
 
    for d in neutronSuccess:
-      d.date = int((d.date + timedelta(days=1)).strftime('%s'))*1000
+      d.date = int(d.date.strftime('%s'))*1000
    for d in neutronFail:
-      d.date = int((d.date + timedelta(days=1)).strftime('%s'))*1000
+      d.date = int(d.date.strftime('%s'))*1000
    for d in neutronMiss:
-      d.date = int((d.date + timedelta(days=1)).strftime('%s'))*1000
+      d.date = int(d.date.strftime('%s'))*1000
 
    context = {
       'data': data,
