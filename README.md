@@ -9,6 +9,14 @@ MariaDB (or MySQL) server<br />
 Django 1.6.5<br />
 nginx<br />
 mysql-python<br />
-ijson
+ijson<br />
+uwsgi
+
+Tips and Tricks
+===============
+You must enter the correct username/passwork into openstack-stats/settings.py for the MariaDB/MySQL database.  Then, to generate the appropriate database structure, execute the following:
+/*
+   python manage.py syncdb
+*/
 
 Copyright 2014 Gabriel Loewen
