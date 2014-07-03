@@ -263,7 +263,7 @@
 <body>
 <div id="content">
    <div id="sidebar">
-      {% if projects %}
+      {% if data.count > 0 %}
          <h2>Total: {{ data.count }}</h2>
          <h2>Successes: {{ totalsuccess.count }}</h2>
          <h2>Failures: {{ totalfail.count }}</h2>
