@@ -7,7 +7,7 @@ Dependencies
 ============
 MariaDB (or MySQL) server<br />
 Django 1.6.5<br />
-nginx<br /><br />
+nginx<br />
 mysql-python<br />
 ijson
 
