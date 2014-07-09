@@ -13,15 +13,33 @@ body, html {
    height: 100%;
 }
 
+.inline {
+   display: inline-block;
+   margin-right: 10px;
+}
+
 .tickLabel {
    font-size: 80%;
 }
 
+.legend {
+   margin-right: 25px;
+   float: right;
+   display: inline-block;
+}
+
+.legend input {
+   display: inline;
+   margin: 0;
+}
+.legend label {
+   margin-right: 5px;
+}
+
 #novaInfo, #neutronInfo {
    font-size: 10pt;
-   width: 120px;
-   text-align: center;
-   padding-right: 10px;
+   padding-left: 10px;
+   padding-bottom: 10px;
 }
 
 #sidebar {
@@ -34,6 +52,14 @@ body, html {
    overflow-x: hidden;
 }
 
+#affected {
+   white-space: nowrap;
+}
+
+#affected li {
+   font-size: 8pt;
+}
+
 #main {
    height: auto;
    padding-left: 235px;
@@ -41,10 +67,11 @@ body, html {
 }
 
 #highlighted {
+   background-color: #333;
+   border-bottom: 2px solid #000;
    color: #fff;
-   background-color: #000;
-   margin:0;
    padding: 2px;
+   text-align: center;
 }
 
 #main form {

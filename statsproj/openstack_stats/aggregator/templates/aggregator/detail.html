@@ -1,3 +1,9 @@
+<!--
+   Interface for Openstack CI metrics tool.
+   Copyright 2014 Gabriel Loewen
+   Microsoft Openstack CI Lab team
+-->
+
 <!doctype html>
 <html>
 <head>
@@ -13,249 +19,23 @@
 <script type="text/javascript" src="http://zizhujy.com/Scripts/base64.js"></script>
 <script type="text/javascript" src="http://zizhujy.com/Scripts/drawing/canvas2image.js"></script>
 <script type="text/javascript" src="http://zizhujy.com/Scripts/flot/jquery.flot.saveAsImage.js"></script>
+
+<!-- Get variables from Django, and pass them into corresponding Javascript arrays -->
 <script type="text/javascript">
-   function labelFormatter(label, series) {
-      return "<div class='pielabel'>" + label + "<br/>" + series.percent.toFixed(1) + "%</div>";
-   }
-   function tooltipFormatter(dat,pass,fail,miss) {
-      return "<b id=\"highlighted\">" + dat.toDateString() + "</b><h3 style=\"padding: 2px;\">Success: " + pass+"</h3><h3 style=\"padding: 2px;\">Failed: " + fail +"</h3>"+"</h3><h3 style=\"padding: 2px;\">Missed: " + miss +"</h3>";
-   }
-   function plotLines(div,pass,fail,miss) {
-      var data = [{label: 'Success', color: '#356AA0', data: pass}, {label: 'Failed', color: '#CD4B4B', data: fail},{label: 'Missed', color: '#555', data: miss}];
-      var plot = $.plot($(div), data, {
-         series: { lines: { show: true }, points: { show: true } },
-         grid: { hoverable: true, backgroundColor: { colors: ["#fff", "#ccc"] } },
-         xaxis: { mode: "time", timeformat: "%m/%d/%y" },
-         yaxis: { tickFormatter: function(val, axis) { return val < axis.max ? val : "#"; }},
-         legend: { show: true, position: "nw", margin: 2 }
-      });
-
-      $(div).bind("plothover", function (event, pos, item) {
-          if (item) {
-             var dat = new Date(item.datapoint[0]);
-             // Fixing an off by 1 error.  Could be an issue with timezone?
-             dat.setUTCDate(dat.getUTCDate()+1);
-
-             var d1 = -1;
-             var d2 = -1;
-             var d3 = -1;
- 
-             for (i=0;i<data[0].data.length;++i) {
-                var x = data[0].data[i];
-                if (x[0] == item.datapoint[0]) {
-                   d1 = i;
-                   break
-                }
-             }
-             for (i=0;i<data[1].data.length;++i) {
-                var x = data[1].data[i];
-                if (x[0] == item.datapoint[0]) {
-                   d2 = i;
-                   break
-                }
-             }
-              for (i=0;i<data[2].data.length;++i) {
-                var x = data[2].data[i];
-                if (x[0] == item.datapoint[0]) {
-                   d3 = i;
-                   break
-                }
-             }
-             if (d1 > -1) {
-                plot.highlight(0,d1);
-                d1 = data[0].data[d1][1];
-             } else {
-                d1 = 0;
-             }
-             if (d2 > -1) {
-                plot.highlight(1,d2);
-                d2 = data[1].data[d2][1]
-             } else {
-                d2 = 0;
-             }
-             if (d3 > -1) {
-                plot.highlight(2,d3);
-                d3 = data[2].data[d3][1]
-             } else {
-                d3 = 0;
-             }
-
-             $("#tooltip").html(tooltipFormatter(dat,d1,d2,d3)).css({top: item.pageY+5, left: item.pageX+5}).fadeIn(200);
-          } else {
-             $("#tooltip").hide();
-             plot.unhighlight();
-          }
-      });
-
-   }
-   function plotPie(div, data) {
-      $.plot($(div), data, {
-         series: {
-             pie: {
-                 show: true,
-                 radius: 1,
-                 label: { radius: 3/4, 
-                          show: true, 
-                          formatter: function(label, series){
-                             return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-                          },
-                        }
-             }
-         },
-         legend: { show: false }
-      });
-   }
-   $(document).ready(function() {
-      $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
-
-      {% if novasuccesses.count > 0 or novafailures.count > 0 or novamiss.count > 0 %}
-      var novapiedata = [{"label": "Failed", "data": {{ novafailures.count }}, "color": "#CD4B4B"},
-                     {"label": "Success", "data": {{ novasuccesses.count }}, "color": "#356AA0"},
-                     {"label": "Missed", "data": {{ novamiss.count }}, "color": "#555"}];
-      plotPie("#novapiechart", novapiedata);
-      var totalNova = parseInt({{ novasuccesses.count }}, 10) + parseInt({{ novafailures.count }}, 10) + parseInt({{ novamiss.count }}, 10);
-      $("#novaInfo").html("<h3>Total: " + totalNova + "</h3><h3>Success: " + {{ novasuccesses.count }} + "</h3><h3>Failed: " + {{ novafailures.count }} + "</h3><h3>Missed: " + {{ novamiss.count }} + "</h3>");
-      {% endif %}
-
-      {% if neutronsuccesses.count > 0 or neutronfailures.count > 0 or neutronmiss.count > 0 %}
-      var neutronpiedata = [{"label": "Failed", "data": {{ neutronfailures.count }}, "color": "#CD4B4B"},
-                     {"label": "Success", "data": {{ neutronsuccesses.count }}, "color": "#356AA0"},
-                     {"label": "Missed", "data": {{ neutronmiss.count }}, "color": "#555"}]
-      plotPie("#neutronpiechart", neutronpiedata);
-      var totalNeutron = parseInt({{ neutronsuccesses.count }}, 10) + parseInt({{ neutronfailures.count }}, 10) + parseInt({{ neutronmiss.count }}, 10);
-      $("#neutronInfo").html("<h3>Total: " + totalNeutron + "</h3><h3>Success: " + {{ neutronsuccesses.count }} + "</h3><h3>Failed: " + {{ neutronfailures.count }} + "</h3><h3>Missed: " + {{ neutronmiss.count }} + "</h3>");
-      {% endif %}
-
-      {% if novasuccesses.count > 0 or novafailures.count > 0 or novamiss.count > 0 %}
-      var novafaildata = {};
-      var novapassdata = {};
-      var novamissdata = {};
-      {% for f in novafailures %}
-      if (!("{{ f.date }}" in novafaildata)) {
-         novafaildata["{{ f.date }}"] = 1;
-      }
-      else {
-         var dat = novafaildata["{{ f.date }}"] + 1;
-         novafaildata["{{ f.date }}"] = dat; 
-      }
-      {% endfor %}
-      {% for s in novasuccesses %}
-      if (!("{{ s.date }}" in novapassdata)) {
-         novapassdata["{{ s.date }}"] = 1;
-      }
-      else {
-         var dat = novapassdata["{{ s.date }}"] + 1;
-         novapassdata["{{ s.date }}"] = dat; 
-      }
-      {% endfor %}
-      {% for s in novamiss %}
-      if (!("{{ s.date }}" in novamissdata)) {
-         novamissdata["{{ s.date }}"] = 1;
-      }
-      else {
-         var dat = novamissdata["{{ s.date }}"] + 1;
-         novamissdata["{{ s.date }}"] = dat; 
-      }
-      {% endfor %}
-     
-      novafail_flot = [];
-      novapass_flot = [];
-      novamiss_flot = [];
-      for (var key in novafaildata) {
-         if (key == 0.0) {
-            continue;
-         }
-         var tuple = [key,novafaildata[key]];
-         novafail_flot.push(tuple);
-      }
-      for (var key in novapassdata) {
-         if (key == 0.0) {
-            continue;
-         }
-         var tuple = [key,novapassdata[key]];
-         novapass_flot.push(tuple);
-      }
-      for (var key in novamissdata) {
-         if (key == 0.0) {
-            continue;
-         }
-         var tuple = [key,novamissdata[key]];
-         novamiss_flot.push(tuple);
-      }
-      
-      plotLines("#novachart",novapass_flot,novafail_flot,novamiss_flot);
-      {% endif %}
-
-      {% if neutronsuccesses.count > 0 or neutronfailures.count > 0 or neutronmiss.count > 0 %}
-      var neutronfaildata = {};
-      var neutronpassdata = {};
-      var neutronmissdata = {};
-      {% for f in neutronfailures %}
-      if (!("{{ f.date }}" in neutronfaildata)) {
-         neutronfaildata["{{ f.date }}"] = 1;
-      }
-      else {
-         var dat = neutronfaildata["{{ f.date }}"] + 1;
-         neutronfaildata["{{ f.date }}"] = dat; 
-      }
-      {% endfor %}
-      {% for s in neutronsuccesses %}
-      if (!("{{ s.date }}" in neutronpassdata)) {
-         neutronpassdata["{{ s.date }}"] = 1;
-      }
-      else {
-         var dat = neutronpassdata["{{ s.date }}"] + 1;
-         neutronpassdata["{{ s.date }}"] = dat; 
-      }
-      {% endfor %}
-      {% for s in neutronmiss %}
-      if (!("{{ s.date }}" in neutronmissdata)) {
-         neutronmissdata["{{ s.date }}"] = 1;
-      }
-      else {
-         var dat = neutronmissdata["{{ s.date }}"] + 1;
-         neutronmissdata["{{ s.date }}"] = dat; 
-      }
-      {% endfor %}
-
-      neutronfail_flot = [];
-      neutronpass_flot = [];
-      neutronmiss_flot = [];
-      for (var key in neutronfaildata) {
-         if (key == 0.0) {
-            continue;
-         }
-         var tuple = [key,neutronfaildata[key]];
-         neutronfail_flot.push(tuple);
-      }
-      for (var key in neutronpassdata) {
-         if (key == 0.0) {
-            continue;
-         }
-         var tuple = [key,neutronpassdata[key]];
-         neutronpass_flot.push(tuple);
-      }
-      for (var key in neutronmissdata) {
-         if (key == 0.0) {
-            continue;
-         }
-         var tuple = [key,neutronmissdata[key]];
-         neutronmiss_flot.push(tuple);
-      }
-      plotLines("#neutronchart",neutronpass_flot,neutronfail_flot,neutronmiss_flot);
-      {% endif %}
-
-      $("<div id='tooltip'></div>").css({
-           position: "absolute",
-           display: "none",
-           border: "1px solid #000",
-           padding: "0px",
-           "background-color": "#fff",
-           opacity: "0.7"
-      }).appendTo("body");
-   });
-
+   var novaSuccess = {{ novaSuccess|safe }};
+   var novaFail = {{ novaFail|safe }};
+   var novaMiss = {{ novaMiss|safe }};
+   var neutronSuccess = {{ neutronSuccess|safe }};
+   var neutronFail = {{ neutronFail|safe }};
+   var neutronMiss = {{ neutronMiss|safe }};
+   var upstreamNovaSuccess = {{ upstreamNovaSuccess|safe }};
+   var upstreamNovaFail = {{ upstreamNovaFail|safe }};
+   var upstreamNovaMiss = {{ upstreamNovaMiss|safe }};
+   var upstreamNeutronSuccess = {{ upstreamNeutronSuccess|safe }};
+   var upstreamNeutronFail = {{ upstreamNeutronFail|safe }};
+   var upstreamNeutronMiss = {{ upstreamNeutronMiss|safe }};
 </script>
+<script type="text/javascript" src="/static/aggregator.js"></script>
 <link href="/static/themes/base/jquery-ui.css" rel="stylesheet" type="text/css">
 <link href="/static/aggregator.css" rel="stylesheet" type="text/css">
 <title>CI Lab Metrics Results</title>
@@ -263,11 +43,15 @@
 <body>
 <div id="content">
    <div id="sidebar">
-      {% if data.count > 0 %}
-         <h2>Total: {{ data.count }}</h2>
-         <h2>Successes: {{ totalsuccess.count }}</h2>
-         <h2>Failures: {{ totalfail.count }}</h2>
-         <h2>Misses: {{ totalmissed.count }}</h2>
+      {% if totalSuccess or totalFail or totalMiss %}
+         <h2>Total: {{ totalSuccess|add:totalFail|add:totalMiss }}</h2>
+         <h2>Success: {{ totalSuccess }}</h2>
+         <h2>Failed: {{ totalFail }}</h2>
+         <h2>Missed: {{ totalMiss }}</h2><br />
+         <h2>Nova:</h3>
+         <div id="novaInfo"></div>
+         <h2>Neutron:</h3>
+         <div id="neutronInfo"></div>
       {% else %}
          <p> No data available!</p>
       {% endif %}
@@ -278,39 +62,24 @@
          Start:&nbsp;<input type="text" class="datepicker" name="start" value="{{ start }}"/>&nbsp;End:&nbsp;<input type="text" class="datepicker" name="end" value="{{ end }}"/>&nbsp;
          <input type="submit" name="submit" value="Submit">
       </form>
-      {% if novasuccesses.count > 0 or novafailures.count > 0 %}
       <table class="graphtable">
       <tr>
-      <td><h3>Nova Tests</h3></td>
-      <td></td>
-      <td></td>
+      <td><h3 class="inline">Nova Tests</h3><div class="legend" id="novachartlegend"></div></td>
       </tr>
       <tr>
       <td class="linechart" id="novachart"></td>
       <td class="piechart" id="novapiechart"></td>
-      <td id="novaInfo"></td>
       </tr>
       </table>
-      {% else %}
-      <p>No nova testing data found!</p><br />
-      {% endif %}
-      {% if neutronsuccesses.count > 0 or neutronfailures.count > 0 %}
       <table class="graphtable">
       <tr>
-      <td><h3>Neutron Tests</h3></td>
-      <td></td>
-      <td></td>
+      <td><h3 class="inline">Neutron Tests</h3><div class="legend" id="neutronchartlegend"></div></td>
       </tr>
       <tr>
       <td class="linechart" id="neutronchart"></td>
       <td class="piechart" id="neutronpiechart"></td>
-      <td id="neutronInfo"></td>
       </tr>
       </table>
-      {% else %}
-      <br />
-      <p>No neutron testing data found!</p>
-      {% endif %}
    </div>
 </div>
 </body>

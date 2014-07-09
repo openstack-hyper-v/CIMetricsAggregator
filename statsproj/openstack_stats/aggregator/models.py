@@ -1,3 +1,7 @@
+# Django model controller for Openstack CI Metrics tool
+# Copyright 2014 Gabriel Loewen
+# Microsoft Openstack CI Lab team
+
 from django.db import models
 
 # source model.  simple field for storing url's of JSON data objects
