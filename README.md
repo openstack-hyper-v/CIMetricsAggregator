@@ -12,9 +12,11 @@ mysql-python<br />
 ijson<br />
 uwsgi
 
-Tips and Tricks
-===============
-You must enter the correct username/passwork into openstack-stats/settings.py for the MariaDB/MySQL database.  Then, to generate the appropriate database structure, execute the following:<br />
+Deployment Instructions
+=======================
+Install the dependencies (listed above)<br />
+Clone the github repo into /CIMetricsTool if on a *nix machine.  If deploying to Windows, clone into any directory, but be sure to change the project locations in <code>nginx.conf</code> and <code>uwsgi.ini</code>.<br />
+You must enter the correct username/password into openstack-stats/settings.py for the MariaDB/MySQL database.  Then, to generate the appropriate database structure, execute the following command:<br />
 <code>
     python manage.py syncdb
 </code><br />
