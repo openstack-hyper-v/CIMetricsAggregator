@@ -14,12 +14,18 @@ uwsgi
 
 Deployment Instructions
 =======================
-Install the dependencies (listed above)<br />
-Clone the github repo into /CIMetricsTool if on a *nix machine.  If deploying to Windows, clone into any directory, but be sure to change the project locations in <code>nginx.conf</code> and <code>uwsgi.ini</code>.<br />
-You must enter the correct username/password into openstack-stats/settings.py for the MariaDB/MySQL database.  Then, to generate the appropriate database structure, execute the following command:<br />
+Step 1:<br />
+Install the dependencies (listed above)<br /><br />
+Step 2:<br />
+Clone the github repo into /CIMetricsTool if on a *nix machine.  If deploying to Windows, clone into any directory, but be sure to change the project locations in <code>nginx.conf</code> and <code>uwsgi.ini</code>.<br /><br />
+Step 3:<br />
+You must enter the correct username/password into openstack-stats/settings.py for the MariaDB/MySQL database.<br /><br />
+Step 4:<br />
+Generate the SQL structure using the following command:</br>
 <code>
     python manage.py syncdb
-</code><br />
-The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.
+</code><br /><br />
+Step 5:<br />
+The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
 
 Copyright 2014 Gabriel Loewen
