@@ -26,6 +26,8 @@ Generate the SQL structure using the following command:</br>
     python manage.py syncdb
 </code><br /><br />
 Step 5:<br />
+Start both nginx, and uwsgi services using the configurations found in the repo.<br /><br />
+Step 6:<br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
 
 Copyright 2014 Gabriel Loewen
