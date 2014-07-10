@@ -50,35 +50,57 @@ function plotLines(div,results) {
    });
    var plot = $.plot($(div), data, {
       series: { lines: { show: true }, points: { show: true } },
-      grid: { hoverable: true, backgroundColor: { colors: ["#fff", "#ccc"] } },
+      crosshair: { mode: "x" },
+      grid: { hoverable: true, autoHighlight: false, backgroundColor: { colors: ["#fff", "#ccc"] } },
       xaxis: { mode: "time", timeformat: "%m/%d/%y" },
       yaxis: { tickFormatter: function(val, axis) { return val < axis.max ? val : "#"; }},
-      legend: { show: true, noColumns: 0, position: "nw"}
+      legend: { show: true, noColumns: 0, position: "nw"},
    });
    $(div).unbind("plothover");
    $(div).bind("plothover", function (event, pos, item) {
+       var date = null;
        if (item) {
-	  var dat = new Date(item.datapoint[0]);
-	  // Fixing an off by 1 error.  Could be an issue with timezone?
-	  dat.setUTCDate(dat.getUTCDate()+1);
-	  
+          date = item.datapoint[0]; 
+       } else {
+	  for (var k=0; k<data.length; ++k) {
+	     var series = data[k];
+	     for (var j=1; j<series.data.length; ++j) {
+		if (pos.x < (series.data[j][0]+series.data[j-1][0])/2) {
+		   date = series.data[j-1][0];
+		   break;
+                } else {
+		   date = series.data[j][0];
+                }
+	     }
+	     if (date) break;
+	  }
+       }
+       if (date) {
 	  plot.unhighlight();
 	  var labels=[];
 	  for (var j=0; j<data.length; ++j) { 
 	     for (i=0;i<data[j].data.length;++i) {
 		var x = data[j].data[i];
-		if (x[0] == item.datapoint[0]) {
+		if (x[0] == date) {
 		   plot.highlight(j,i);
 		   labels.push({"label":data[j].label,"val":data[j].data[i][1]});
 		   break
 		}
 	     }
 	  }
-	  $("#tooltip").html(tooltipFormatter(dat,labels)).css({top: item.pageY+5, left: item.pageX+5}).fadeIn(200);
+          // Convert to javascript date object
+          date = new Date(date);
+	  // Fixing an off by 1 error.  Could be an issue with timezone?
+	  date.setUTCDate(date.getUTCDate()+1);
+	  $("#tooltip").html(tooltipFormatter(date,labels)).css({top: pos.pageY+5, left: pos.pageX+5}).fadeIn(200);
        } else {
 	  $("#tooltip").hide();
 	  plot.unhighlight();
        }
+   });
+   $(div).mouseleave(function() {
+      $("#tooltip").hide();
+      plot.unhighlight();
    });
 }
 
