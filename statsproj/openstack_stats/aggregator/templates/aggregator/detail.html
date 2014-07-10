@@ -15,10 +15,11 @@
 <script src="/static/flot/jquery.flot.pie.js" type="text/javascript"></script>
 <script src="/static/flot/jquery.flot.resize.js" type="text/javascript"></script>
 <script src="/static/flot/jquery.flot.canvas.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.symbol.js" type="text/javascript"></script>
 <script src="/static/flot/jquery.flot.legendoncanvas.js" type="text/javascript"></script>
-<script type="text/javascript" src="http://zizhujy.com/Scripts/base64.js"></script>
-<script type="text/javascript" src="http://zizhujy.com/Scripts/drawing/canvas2image.js"></script>
-<script type="text/javascript" src="http://zizhujy.com/Scripts/flot/jquery.flot.saveAsImage.js"></script>
+<script src="/static/base64.js" type="text/javascript"></script>
+<script src="/static/canvas2image.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.saveAsImage.js" type="text/javascript"></script>
 
 <!-- Get variables from Django, and pass them into corresponding Javascript arrays -->
 <script type="text/javascript">
@@ -55,6 +56,12 @@
       {% else %}
          <p> No data available!</p>
       {% endif %}
+      <div id="links">
+      <ul>
+      <li><a href="/">Go Back</a></li>
+      <li><a href="/accounts/logout">Logout</a></li>
+      </ul>
+      </div>
    </div>
 
    <div id="main">

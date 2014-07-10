@@ -31,7 +31,9 @@ function tooltipFormatter(dat,labels) {
 // Inserts a checkbox into the desired div for each series in the chart
 function insertCheckBoxes(div, data, key) {
    for (var i=0; i<data.length; ++i) {
-      $(div).append(checkboxFormatter(data[i].label,key));
+      if (data[i].data.length > 0) {
+         $(div).append(checkboxFormatter(data[i].label,key));
+      }
    }
 }
 
@@ -117,29 +119,29 @@ function processData(project) {
    var upstreamFail;
    var upstreamMiss;
    if (project == "nova") {
-      success = novaSuccess;//{{ novaSuccess|safe }};
-      fail = novaFail;//{{ novaFail|safe }};
-      miss = novaMiss//{{ novaMiss|safe }};
-      upstreamSuccess = upstreamNovaSuccess;//{{ upstreamNovaSuccess|safe }};
-      upstreamFail = upstreamNovaFail;//{{ upstreamNovaFail|safe }};
-      upstreamMiss = upstreamNovaMiss;//{{ upstreamNovaMiss|safe }};
+      success = novaSuccess;
+      fail = novaFail;
+      miss = novaMiss;
+      upstreamSuccess = upstreamNovaSuccess;
+      upstreamFail = upstreamNovaFail;
+      upstreamMiss = upstreamNovaMiss;
    } else if (project == "neutron") {
-      success = neutronSuccess;//{{ neutronSuccess|safe }};
-      fail = neutronFail;//{{ neutronFail|safe }};
-      miss = neutronMiss;//{{ neutronMiss|safe }};
-      upstreamSuccess = upstreamNeutronSuccess;//{{ upstreamNeutronSuccess|safe }};
-      upstreamFail = upstreamNeutronFail;//{{ upstreamNeutronFail|safe }};
-      upstreamMiss = upstreamNeutronMiss;//{{ upstreamNeutronMiss|safe }};
+      success = neutronSuccess;
+      fail = neutronFail;
+      miss = neutronMiss;
+      upstreamSuccess = upstreamNeutronSuccess;
+      upstreamFail = upstreamNeutronFail;
+      upstreamMiss = upstreamNeutronMiss;
    } else {
       return null;
    }
    var sums = [sum(success),sum(fail),sum(miss)];
-   var results = [{label: 'Success', color: '#356AA0', data: success}, 
-		{label: 'Failed', color: '#CD4B4B', data: fail},
-		{label: 'Missed', color: '#555', data: miss},
-		{label: 'Upstream Success', color: '#6755E3', data: upstreamSuccess},
-		{label: 'Upstream Failed', color: '#01FCEF', data: upstreamFail},
-		{label: 'Upstream Missed', color: '#59DF00', data: upstreamMiss}];
+   var results = [{label: 'Success', color: '#356AA0', data: success, points: {symbol: "triangle"}}, 
+		{label: 'Failed', color: '#CD4B4B', data: fail, points: {symbol: "square"}},
+		{label: 'Missed', color: '#555', data: miss, points: {symbol: "circle"}},
+		{label: 'Upstream Success', color: '#6755E3', data: upstreamSuccess, points: {symbol: "triangle"}},
+		{label: 'Upstream Failed', color: '#01FCEF', data: upstreamFail, points: {symbol: "square"}},
+		{label: 'Upstream Missed', color: '#59DF00', data: upstreamMiss, points: {symbol: "circle"}}];
    return [sums,results];
 }
 

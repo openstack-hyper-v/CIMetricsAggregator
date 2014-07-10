@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^aggregator/', include('aggregator.urls')),
     url(r'^$', include('aggregator.urls')),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',{'next_page':'/'}),
 )

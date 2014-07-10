@@ -76,6 +76,8 @@ def mergeDetails(cids, worker, project):
             except:
                continue
          elif prefix == 'messages.item.message' and author != worker:
+            if 'starting check jobs' in value.lower():
+               continue
             dat = value.strip().split(':')
             if 'patch' in dat[0].lower():
                missedpatch = dat[0].split()
