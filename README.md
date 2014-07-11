@@ -53,6 +53,7 @@ Step 7:<br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
 
 Deployment Instructions (Windows)
+=================================
 Step 1:<br />
 Install the dependencies (listed above) and create a database named 'Metrics'<br /><br />
 Step 2:<br />
