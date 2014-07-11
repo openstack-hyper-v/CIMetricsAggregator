@@ -65,22 +65,19 @@ Generate the SQL structure using the following command:</br>
 </code><br /><br />
 Step 5:
 Add the following to your httpd.conf file:<br />
-<pre><code>
+<code><pre>
     WSGIScriptAlias / C:/CIMetricsTool/statsproj/openstack_stats/openstack_stats/wsgi.py
     WSGIPythonPath C:/CIMetricsTool/statsproj/openstack_stats
-    
     <Directory C:/CIMetricsTool/statsproj/openstack_stats/openstack_stats>
     <Files wsgi.py>
     Require all granted
     </Files>
     </Directory>
-    
     Alias /static/ C:/CIMetricsTool/statsproj/openstack_stats/static/
-    
     <Directory C:/CIMetricsTool/statsproj/openstack_stats/static>
     Require all granted
     </Directory>
-</code></pre>
+</pre></code>
 Step 6:<br />
 Navigate to <your_server>/admin and at least add upstream Jenkins to the source model:<br />
 <code>
