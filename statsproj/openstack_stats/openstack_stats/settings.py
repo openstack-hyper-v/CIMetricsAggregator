@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_windows_tools',
     'aggregator',
 )
 
@@ -85,7 +86,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/gabriel/statsproj/openstack_stats/static'
+STATIC_ROOT = '/CIMetricsTool/statsproj/openstack_stats/static'
 STATICFILES_FINDERS = (
 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 'django.contrib.staticfiles.finders.FileSystemFinder',
