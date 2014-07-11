@@ -39,15 +39,15 @@ Step 5:<br />
 Start both nginx, and uwsgi services using the configurations found in the repo.<br /><br />
 Step 6:<br />
 Navigate to <your_server>/admin and at least add upstream Jenkins to the source model:<br />
-```
+<code>
     project: openstack/nova
     worker: Jenkins
-```<br />
+</code><br />
 And,<br />
-```
+<code>
     project: openstack/neutron
     worker: Jenkins
-```
+</code>
 <br />
 Step 7:<br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
@@ -81,16 +81,16 @@ Add the following to your httpd.conf file:<br />
 ```
 Step 6:<br />
 Navigate to <your_server>/admin and at least add upstream Jenkins to the source model:<br />
-```
+<code>
     project: openstack/nova
     worker: Jenkins
-```
+</code>
 <br />
 And,<br />
-```
+<code>
     project: openstack/neutron
     worker: Jenkins
-```
+</code>
 <br /><br />
 Step 7:<br />
 Restart apache<br /><br />
