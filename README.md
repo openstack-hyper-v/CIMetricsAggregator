@@ -47,7 +47,8 @@ And,<br />
 ```
     project: openstack/neutron
     worker: Jenkins
-```<br />
+```
+<br />
 Step 7:<br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
 
@@ -83,12 +84,14 @@ Navigate to <your_server>/admin and at least add upstream Jenkins to the source 
 ```
     project: openstack/nova
     worker: Jenkins
-```<br />
+```
+<br />
 And,<br />
 ```
     project: openstack/neutron
     worker: Jenkins
-```<br /><br />
+```
+<br /><br />
 Step 7:<br />
 Restart apache<br /><br />
 Step 8:<br />
