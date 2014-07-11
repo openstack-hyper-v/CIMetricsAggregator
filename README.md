@@ -16,7 +16,7 @@ uwsgi
 Dependencies (Windows)
 ============
 WAMP Server<br />
-mod_wsgi (Look here: http://www.lfd.uci.edu/~gohlke/pythonlibs/#mod_wsgi)
+mod_wsgi (Look here: http://www.lfd.uci.edu/~gohlke/pythonlibs/#mod_wsgi)<br />
 Django 1.6.5<br />
 mysql-python (Get binary here: http://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python)<br />
 ijson<br />
