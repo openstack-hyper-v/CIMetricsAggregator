@@ -12,7 +12,6 @@ from django.http import HttpResponse
 from aggregator.models import Change
 from datetime import timedelta, datetime
 import time
-import simplejson
 
 # Simple index page renderer
 @login_required
@@ -110,7 +109,7 @@ def getWorkerDetails(data, getTotals):
 
    # get correct date format
    for d in novaData:
-      d.date = int(d.date.strftime('%s'))*1000
+      d.date = str(int((d.date - datetime(1970,1,1).date()).total_seconds()*1000))
 
    for d in novaData:
       if d.success:
@@ -142,7 +141,7 @@ def getWorkerDetails(data, getTotals):
 
    # get correct date format
    for d in neutronData:
-      d.date = int(d.date.strftime('%s'))*1000
+      d.date = str(int((d.date - datetime(1970,1,1).date()).total_seconds()*1000))
 
    for d in neutronData:
       if d.success:
