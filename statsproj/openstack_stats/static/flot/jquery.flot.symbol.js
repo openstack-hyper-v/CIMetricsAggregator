@@ -51,7 +51,17 @@ The symbols are accessed as strings through the standard symbol options:
                 ctx.lineTo(x + size, y + size);
                 ctx.moveTo(x - size, y + size);
                 ctx.lineTo(x + size, y - size);
+            },
+            exclamation: function (ctx, x, y, radius, shadow) {
+                // pi * r^2 = (2s)^2  =>  s = r * sqrt(pi)/2
+                var size = radius * Math.sqrt(Math.PI);
+                ctx.rect(x - size, y - size, size + size, size + size);
+                ctx.moveTo(x, y-size+2);
+                ctx.lineTo(x, y + size-4);
+                ctx.moveTo(x, y+size-3);
+                ctx.lineTo(x, y + size-2);
             }
+
         };
 
         var s = series.points.symbol;

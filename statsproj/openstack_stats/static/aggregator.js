@@ -23,7 +23,11 @@ function tooltipFormatter(dat,labels) {
    output = "<h2 id=\"highlighted\">" + dat.toDateString() + "</h2>";
    for (var i=0; i<labels.length; ++i) {
       var item = labels[i];
-      output += "<h3 style=\"padding: 2px;\">" + item.label + " : " + item.val + "</h3>";
+      if (item.label == "Outage") {
+         output += "<h3 style=\"padding: 2px;\">Possible Outage</h3>";
+      } else {
+         output += "<h3 style=\"padding: 2px;\">" + item.label + " : " + item.val + "</h3>";
+      }
    }
    return output;
 }
@@ -50,7 +54,7 @@ function plotLines(div,results) {
    });
    var plot = $.plot($(div), data, {
       series: { lines: { show: true }, points: { show: true } },
-      grid: { hoverable: true, autoHighlight: true, backgroundColor: { colors: ["#fff", "#ccc"] } },
+      grid: { hoverable: true, autoHighlight: false, backgroundColor: { colors: ["#fff", "#ccc"] } },
       xaxis: { mode: "time", timeformat: "%m/%d/%y" },
       yaxis: { tickFormatter: function(val, axis) { return val < axis.max ? val : "#"; }},
       legend: { show: true, noColumns: 0, position: "nw"},
@@ -143,13 +147,35 @@ function processData(project) {
    } else {
       return null;
    }
+   var outage = [];
+   for (var i=0; i<miss.length; ++i) {
+      var date = miss[i][0];
+      var found = false;
+      for (var j=0; j<success.length; ++j) {
+         if (success[j][0] == date) {
+            found = true;
+            break;
+         }
+      }
+      if (found)
+         continue;
+      for (var j=0; j<fail.length; ++j) {
+         if (fail[j][0] == date) {
+            found = true;
+            break;
+         }
+      }
+      if (!found)
+         outage.push([date,0]);
+   }
    var sums = [sum(success),sum(fail),sum(miss)];
    var results = [{label: 'Success', color: '#356AA0', data: success, points: {symbol: "triangle"}}, 
 		{label: 'Failed', color: '#CD4B4B', data: fail, points: {symbol: "square"}},
 		{label: 'Missed', color: '#555', data: miss, points: {symbol: "circle"}},
 		{label: 'Upstream Success', color: '#6755E3', data: upstreamSuccess, points: {symbol: "triangle"}},
 		{label: 'Upstream Failed', color: '#01FCEF', data: upstreamFail, points: {symbol: "square"}},
-		{label: 'Upstream Missed', color: '#59DF00', data: upstreamMiss, points: {symbol: "circle"}}];
+		{label: 'Upstream Missed', color: '#59DF00', data: upstreamMiss, points: {symbol: "circle"}},
+		{label: 'Outage', color: 'RED', data: outage, points: {symbol: "exclamation"}, lines: {show: false}}]
    return [sums,results];
 }
 

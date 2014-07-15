@@ -52,6 +52,7 @@ def detail(request, name):
 	 'upstreamNeutronSuccess': list(upstreamResults[3]),
 	 'upstreamNeutronFail': list(upstreamResults[4]),
 	 'upstreamNeutronMiss': list(upstreamResults[5]),
+         'name': name,
 	 'start': mainDataSet[0],
 	 'end': mainDataSet[1],
       }
@@ -72,6 +73,7 @@ def detail(request, name):
 	 'upstreamNeutronSuccess': list(),
 	 'upstreamNeutronFail': list(),
 	 'upstreamNeutronMiss': list(),
+         'name': name,
 	 'start': mainDataSet[0],
 	 'end': mainDataSet[1],
       }

@@ -21,11 +21,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'w0u&e6q01k1$s6q6$8qpyc^ct$w!)1y2=i6!w-=j#47cgay78@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True 
+DEBUG = False 
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["cimetrics.cloudapp.net", ".cloudapp.net", ".cimetrics.cloudappn.et"]
 
 # Application definition
 
@@ -85,7 +85,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/gabriel/statsproj/openstack_stats/static'
+STATIC_ROOT = '/CIMetricsTool/statsproj/openstack_stats/static'
 STATICFILES_FINDERS = (
 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 'django.contrib.staticfiles.finders.FileSystemFinder',
