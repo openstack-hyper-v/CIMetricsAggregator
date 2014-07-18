@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from aggregator.models import Change
 from datetime import timedelta, datetime
 import time
+import simplejson
 
 # Simple index page renderer
 @login_required
@@ -29,12 +30,18 @@ def detail(request, name):
    # Get the data for the specified worker
    mainDataSet = getWorkerSpecifiedData(request, name)
    mainData = mainDataSet[2]
-   mainResults = getWorkerDetails(mainData, True)
+   timeGranular = False
+   if request.method == "POST":
+      tg = request.POST.get("timeGranular","")
+      if tg:
+         timeGranular = True
+   mainResults = getWorkerDetails(mainData, timeGranular, True)
+
    if (name != "Jenkins"):
       # Get the upstream data (Jenkins)
       upstreamDataSet = getWorkerSpecifiedData(request, "Jenkins")
       upstreamData = upstreamDataSet[2]
-      upstreamResults = getWorkerDetails(upstreamData, False)
+      upstreamResults = getWorkerDetails(upstreamData, timeGranular, False)
       context = {
 	 'novaSuccess': list(mainResults[0]),
 	 'novaFail': list(mainResults[1]),
@@ -54,6 +61,7 @@ def detail(request, name):
          'name': name,
 	 'start': mainDataSet[0],
 	 'end': mainDataSet[1],
+         'granular': timeGranular,
       }
    else:
       context = {
@@ -75,6 +83,7 @@ def detail(request, name):
          'name': name,
 	 'start': mainDataSet[0],
 	 'end': mainDataSet[1],
+         'granular': timeGranular,
       }
 
    return render_to_response("aggregator/detail.html", context, context_instance = RequestContext(request))
@@ -100,24 +109,28 @@ def insertOrIncrement(container, val):
       container[val] = 1
 
 # Get details for the worker, both Nova and Neutron data
-def getWorkerDetails(data, getTotals):
+def getWorkerDetails(data, timeGranular, getTotals):
    # Retrieve and process nova data
-   novaData = data.filter(project="openstack/nova")
+   novaData = data.filter(project="openstack/nova").order_by("time")
    _novaSuccess = {}
    _novaFail = {}
    _novaMiss = {}
 
    # get correct date format
    for d in novaData:
-      d.date = str(int((d.date - datetime(1970,1,1).date()).total_seconds()*1000))
+      d.date = int(d.date.strftime('%s'))*1000
 
    for d in novaData:
-      if d.success:
-         insertOrIncrement(_novaSuccess, d.date)
-      elif d.missed:
-         insertOrIncrement(_novaMiss, d.date)
+      if timeGranular:
+         timeOffset = d.date + (d.time.hour * 3600 * 1000)
       else:
-         insertOrIncrement(_novaFail, d.date) 
+         timeOffset = d.date
+      if d.success:
+         insertOrIncrement(_novaSuccess, timeOffset)
+      elif d.missed:
+         insertOrIncrement(_novaMiss, timeOffset)
+      else:
+         insertOrIncrement(_novaFail, timeOffset) 
 
    novaSuccess = []
    novaFail = []
@@ -134,22 +147,26 @@ def getWorkerDetails(data, getTotals):
    novaMiss = sorted(novaMiss, key=lambda l:l[0])
 
    # Retrieve and process neutron data
-   neutronData = data.filter(project="openstack/neutron")
+   neutronData = data.filter(project="openstack/neutron").order_by("time")
    _neutronSuccess = {}
    _neutronFail = {}
    _neutronMiss = {}
 
    # get correct date format
    for d in neutronData:
-      d.date = str(int((d.date - datetime(1970,1,1).date()).total_seconds()*1000))
+      d.date = int(d.date.strftime('%s'))*1000
 
    for d in neutronData:
-      if d.success:
-         insertOrIncrement(_neutronSuccess, d.date)
-      elif d.missed:
-         insertOrIncrement(_neutronMiss, d.date)
+      if timeGranular:
+         timeOffset = d.date + (d.time.hour * 3600 * 1000)
       else:
-         insertOrIncrement(_neutronFail, d.date) 
+         timeOffset = d.date
+      if d.success:
+         insertOrIncrement(_neutronSuccess, timeOffset)
+      elif d.missed:
+         insertOrIncrement(_neutronMiss, timeOffset)
+      else:
+         insertOrIncrement(_neutronFail, timeOffset) 
 
    neutronSuccess = []
    neutronFail = []

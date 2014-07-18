@@ -24,6 +24,7 @@
 
 <!-- Get variables from Django, and pass them into corresponding Javascript arrays -->
 <script type="text/javascript">
+   var showTime = "{{ granular|safe }}"=="True"; 
    var novaSuccess = {{ novaSuccess|safe }};
    var novaFail = {{ novaFail|safe }};
    var novaMiss = {{ novaMiss|safe }};
@@ -69,7 +70,8 @@
    <div id="main">
       <form action="#" method="post"> {% csrf_token %}
          Start:&nbsp;<input type="text" class="datepicker" name="start" value="{{ start }}"/>&nbsp;End:&nbsp;<input type="text" class="datepicker" name="end" value="{{ end }}"/>&nbsp;
-         <input type="submit" name="submit" value="Submit">
+         <input type="submit" name="submit" value="Submit">&nbsp;
+         <input type="checkbox" name="timeGranular" id="timeGranular" {% if granular %}checked{% endif %} /><label for="timeGranular">High Granularity</label>&nbsp;
       </form>
       <table class="graphtable">
       <tr>
@@ -91,5 +93,6 @@
       </table>
    </div>
 </div>
+<div id="tooltip"></div>
 </body>
 </html>

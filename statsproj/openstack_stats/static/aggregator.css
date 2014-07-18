@@ -124,3 +124,12 @@ a:hover {
 #ui-datepicker-div {
    display: none;
 }
+
+#tooltip {
+   position: absolute;
+   display: none;
+   border: 1px solid #000;
+   padding: 0;
+   background-color: #fff;
+   opacity: 0.7'
+}

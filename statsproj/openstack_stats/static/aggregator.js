@@ -18,13 +18,21 @@ function labelFormatter(label, series) {
    return "<div class='pielabel'>" + label + "<br/>" + series.percent.toFixed(1) + "%</div>";
 }
 
+// Format the time by padding leading zeroes
+function pad(n) {
+    return (n < 10) ? ("0" + n) : n;
+}
+
 // Format the tooltip container for the line charts
 function tooltipFormatter(dat,labels) {
-   output = "<h2 id=\"highlighted\">" + dat.toDateString() + "</h2>";
+   if (showTime)
+      output = "<h3 id=\"highlighted\">" + dat.toUTCString() + "</h3>";
+   else
+      output = "<h3 id=\"highlighted\">" + dat.toUTCString().substr(0, 16) + "</h3>";
    for (var i=0; i<labels.length; ++i) {
       var item = labels[i];
       if (item.label == "Outage") {
-         output += "<h3 style=\"padding: 2px;\">Possible Outage</h3>";
+         output += "<h3 style=\"padding: 2px; color: red;\">Possible Outage</h3>";
       } else {
          output += "<h3 style=\"padding: 2px;\">" + item.label + " : " + item.val + "</h3>";
       }
@@ -50,13 +58,40 @@ function plotLines(div,results) {
 	 if (this.name == results[i].label) {
 	    data.push(results[i]);
 	 }
-      } 
+      }
    });
+   function xAxisFormatter(val, axis) {
+      var found = false;
+      for (var i=0; i<data.length; ++i) {
+         for (var j=0; j<data[i].data.length; ++j) {
+            var date = data[i].data[j][0];
+            if (date == val) {
+               found = true;
+               break;
+            }
+         }
+      }
+      if (!found && !showTime)
+         return "";
+
+      var date = new Date(val);
+      if (showTime) {
+	 return date.getUTCMonth() + "/" +
+		date.getUTCDate() + "/" + 
+		date.getUTCFullYear() + "\n" + 
+		pad(date.getUTCHours()) + ":" + 
+		pad(date.getUTCMinutes());
+      } else {
+	 return date.getUTCMonth() + "/" +
+		date.getUTCDate() + "/" + 
+		date.getUTCFullYear(); 
+      }
+   }
    var plot = $.plot($(div), data, {
       series: { lines: { show: true }, points: { show: true } },
       grid: { hoverable: true, autoHighlight: false, backgroundColor: { colors: ["#fff", "#ccc"] } },
-      xaxis: { mode: "time", timeformat: "%m/%d/%y" },
-      yaxis: { tickFormatter: function(val, axis) { return val < axis.max ? val : "#"; }},
+      xaxis: { tickFormatter: xAxisFormatter, mode: "time" },
+      yaxis: { tickFormatter: function(val, axis) { return val < axis.max ? val.toFixed(1) : "#"; }},
       legend: { show: true, noColumns: 0, position: "nw"},
    });
    $(div).unbind("plothover");
@@ -64,6 +99,7 @@ function plotLines(div,results) {
        var date = null;
        if (item) {
           date = item.datapoint[0]; 
+          console.log(item);
        } 
        if (date) {
 	  plot.unhighlight();
@@ -80,8 +116,6 @@ function plotLines(div,results) {
 	  }
           // Convert to javascript date object
           date = new Date(date);
-	  // Fixing an off by 1 error.  Could be an issue with timezone?
-	  date.setUTCDate(date.getUTCDate()+1);
 	  $("#tooltip").html(tooltipFormatter(date,labels)).css({top: pos.pageY+5, left: pos.pageX+5}).fadeIn(200);
        } else {
 	  $("#tooltip").hide();
@@ -181,7 +215,10 @@ function processData(project) {
 
 // On document load, get the data, plot, and setup various options using JQuery
 $(document).ready(function() {
+   // Set up the datepicker divs
    $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
+
+   // Process the nova data and setup the nova charts
    var novaData = processData("nova");
    var novaSums = novaData[0];
    novaData = novaData[1];
@@ -196,6 +233,7 @@ $(document).ready(function() {
    var totalNova = novaSums[0] + novaSums[1] + novaSums[2];
    $("#novaInfo").html("<h3>Total: " + totalNova + "</h3><h3>Success: " + novaSums[1] + "</h3><h3>Failed: " + novaSums[0] + "</h3><h3>Missed: " + novaSums[2] + "</h3>");
 
+   // Process the neutron data and setup the neutron charts
    var neutronData = processData("neutron");
    var neutronSums = neutronData[0];
    neutronData = neutronData[1];
@@ -209,13 +247,4 @@ $(document).ready(function() {
    plotPie("#neutronpiechart", neutronpiedata);
    var totalNeutron = neutronSums[0] + neutronSums[1] + neutronSums[2];
    $("#neutronInfo").html("<h3>Total: " + totalNeutron + "</h3><h3>Success: " + neutronSums[1] + "</h3><h3>Failed: " + neutronSums[0] + "</h3><h3>Missed: " + neutronSums[2] + "</h3>");
-
-   $("<div id='tooltip'></div>").css({
-	position: "absolute",
-	display: "none",
-	border: "1px solid #000",
-	padding: "0px",
-	"background-color": "#fff",
-	opacity: "0.7"
-   }).appendTo("body");
 });
