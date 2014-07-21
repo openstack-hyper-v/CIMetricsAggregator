@@ -12,7 +12,6 @@ from django.http import HttpResponse
 from aggregator.models import Change
 from datetime import timedelta, datetime
 import time
-import simplejson
 
 # Simple index page renderer
 @login_required
