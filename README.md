@@ -6,6 +6,7 @@ Tool for aggregating and caching metrics regarding Openstack CI testing results 
 Dependencies (*nix)
 ============
 MariaDB (or MySQL) server<br />
+PHP5<br />
 Django 1.6.5<br />
 nginx<br />
 mysql-python<br />
