@@ -325,7 +325,7 @@ More detail and specific examples can be found in the included HTML file.
 
 			if (attempts >= REDRAW_ATTEMPTS) {
 				clear();
-				target.prepend("<div class='error'>Could not draw pie with labels contained inside canvas</div>");
+				//target.prepend("<div class='error'>Could not draw pie with labels contained inside canvas</div>");
 			}
 
 			if (plot.setSeries && plot.insertLegend) {

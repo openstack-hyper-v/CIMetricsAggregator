@@ -32,9 +32,9 @@ function tooltipFormatter(dat,labels) {
    for (var i=0; i<labels.length; ++i) {
       var item = labels[i];
       if (item.label == "Outage") {
-         output += "<h3 style=\"padding: 2px; color: red;\">Possible Outage</h3>";
+         output += "<p style=\"color: red;\">Possible Outage</h3>";
       } else {
-         output += "<h3 style=\"padding: 2px;\">" + item.label + " : " + item.val + "</h3>";
+         output += "<p>" + item.label + " : " + item.val + "</p>";
       }
    }
    return output;
@@ -76,22 +76,22 @@ function plotLines(div,results) {
 
       var date = new Date(val);
       if (showTime) {
-	 return date.getUTCMonth() + "/" +
+	 return date.getUTCMonth()+1 + "/" +
 		date.getUTCDate() + "/" + 
 		date.getUTCFullYear() + "\n" + 
 		pad(date.getUTCHours()) + ":" + 
 		pad(date.getUTCMinutes());
       } else {
-	 return date.getUTCMonth() + "/" +
+	 return date.getUTCMonth()+1 + "/" +
 		date.getUTCDate() + "/" + 
 		date.getUTCFullYear(); 
       }
    }
    var plot = $.plot($(div), data, {
       series: { lines: { show: true }, points: { show: true } },
-      grid: { hoverable: true, autoHighlight: false, backgroundColor: { colors: ["#fff", "#ccc"] } },
+      grid: { hoverable: true, autoHighlight: false, backgroundColor: "#fff" },
       xaxis: { tickFormatter: xAxisFormatter, mode: "time" },
-      yaxis: { tickFormatter: function(val, axis) { return val < axis.max ? val.toFixed(1) : "#"; }},
+      yaxis: { minTickSize: 1, tickFormatter: function(val, axis) { return val < axis.max ? val.toFixed(1) : "#"; }},
       legend: { show: true, noColumns: 0, position: "nw"},
    });
    $(div).unbind("plothover");
@@ -99,7 +99,6 @@ function plotLines(div,results) {
        var date = null;
        if (item) {
           date = item.datapoint[0]; 
-          console.log(item);
        } 
        if (date) {
 	  plot.unhighlight();
@@ -116,7 +115,7 @@ function plotLines(div,results) {
 	  }
           // Convert to javascript date object
           date = new Date(date);
-	  $("#tooltip").html(tooltipFormatter(date,labels)).css({top: pos.pageY+5, left: pos.pageX+5}).fadeIn(200);
+	  $("#tooltip").html(tooltipFormatter(date,labels)).css({top: item.pageY-$("#tooltip").height()+$("#tooltip").height()/2-5, left: item.pageX+15}).fadeIn(200);
        } else {
 	  $("#tooltip").hide();
 	  plot.unhighlight();

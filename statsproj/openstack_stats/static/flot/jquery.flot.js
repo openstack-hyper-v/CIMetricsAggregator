@@ -131,9 +131,9 @@ Licensed under the MIT license.
 
 	Canvas.prototype.resize = function(width, height) {
 
-		if (width <= 0 || height <= 0) {
-			throw new Error("Invalid dimensions for plot, width = " + width + ", height = " + height);
-		}
+		//if (width <= 0 || height <= 0) {
+		//	throw new Error("Invalid dimensions for plot, width = " + width + ", height = " + height);
+	//	}
 
 		var element = this.element,
 			context = this.context,
