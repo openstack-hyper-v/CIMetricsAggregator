@@ -28,7 +28,7 @@ def getGerritChangeRequest(cid):
 
 # For a particular project, get a list of associated change ID's
 def getChanges(project):
-   url = "https://review.openstack.org/changes/?q=project:"+project
+   url = "https://review.openstack.org/changes/?q=status:open&q=project:"+project
    req = addheaders(urllib2.Request(url))
    res = urllib2.urlopen(req)
    # ignore first line
