@@ -9,17 +9,18 @@ from django.shortcuts import render_to_response
 from django.db import connection
 from django.template import RequestContext, loader
 from django.http import HttpResponse
-from aggregator.models import Change
+from aggregator.models import *
 from datetime import timedelta, datetime
 import time
+import simplejson
 
 # Simple index page renderer
 @login_required
 def index(request):
-   data = Change.objects
+   data = Source.objects.values('worker').distinct()
    template = loader.get_template('aggregator/index.html')
    context = RequestContext(request, {
-      'workers': data.values('worker').distinct(),
+      'workers': data,
    })
    return HttpResponse(template.render(context))
 
@@ -34,56 +35,74 @@ def detail(request, name):
       tg = request.POST.get("timeGranular","")
       if tg:
          timeGranular = True
-   mainResults = getWorkerDetails(mainData, timeGranular, True)
+   _mainResults = _getWorkerDetails(mainData, timeGranular, name, True)
 
    if (name != "Jenkins"):
       # Get the upstream data (Jenkins)
       upstreamDataSet = getWorkerSpecifiedData(request, "Jenkins")
       upstreamData = upstreamDataSet[2]
-      upstreamResults = getWorkerDetails(upstreamData, timeGranular, False)
+      _upstreamResults = _getWorkerDetails(upstreamData, timeGranular, name, False)
       context = {
-	 'novaSuccess': list(mainResults[0]),
-	 'novaFail': list(mainResults[1]),
-	 'novaMiss': list(mainResults[2]),
-	 'neutronSuccess': list(mainResults[3]), 
-	 'neutronFail': list(mainResults[4]),
-	 'neutronMiss': list(mainResults[5]),
-	 'totalSuccess': mainResults[6],
-	 'totalFail': mainResults[7],
-	 'totalMiss': mainResults[8],
-	 'upstreamNovaSuccess': list(upstreamResults[0]),
-	 'upstreamNovaFail': list(upstreamResults[1]),
-	 'upstreamNovaMiss': list(upstreamResults[2]),
-	 'upstreamNeutronSuccess': list(upstreamResults[3]),
-	 'upstreamNeutronFail': list(upstreamResults[4]),
-	 'upstreamNeutronMiss': list(upstreamResults[5]),
-         'name': name,
+         'mainResults': _mainResults,
+         'upstreamResults': _upstreamResults,
 	 'start': mainDataSet[0],
 	 'end': mainDataSet[1],
          'granular': timeGranular,
+         'name': name
       }
    else:
       context = {
-	 'novaSuccess': list(mainResults[0]),
-	 'novaFail': list(mainResults[1]),
-	 'novaMiss': list(mainResults[2]),
-	 'neutronSuccess': list(mainResults[3]), 
-	 'neutronFail': list(mainResults[4]),
-	 'neutronMiss': list(mainResults[5]),
-	 'totalSuccess': mainResults[6],
-	 'totalFail': mainResults[7],
-	 'totalMiss': mainResults[8],
-	 'upstreamNovaSuccess': list(),
-	 'upstreamNovaFail': list(),
-	 'upstreamNovaMiss': list(),
-	 'upstreamNeutronSuccess': list(),
-	 'upstreamNeutronFail': list(),
-	 'upstreamNeutronMiss': list(),
-         'name': name,
+         'mainResults': _mainResults,
+         'upstreamResults': list(),
 	 'start': mainDataSet[0],
 	 'end': mainDataSet[1],
          'granular': timeGranular,
+         'name': name
       }
+
+      #context = {
+#	 'novaSuccess': list(mainResults[0]),
+#	 'novaFail': list(mainResults[1]),
+#	 'novaMiss': list(mainResults[2]),
+#	 'neutronSuccess': list(mainResults[3]), 
+#	 'neutronFail': list(mainResults[4]),
+#	 'neutronMiss': list(mainResults[5]),
+#	 'totalSuccess': mainResults[6],
+#	 'totalFail': mainResults[7],
+#	 'totalMiss': mainResults[8],
+#	 'upstreamNovaSuccess': list(upstreamResults[0]),
+#	 'upstreamNovaFail': list(upstreamResults[1]),
+#	 'upstreamNovaMiss': list(upstreamResults[2]),
+#	 'upstreamNeutronSuccess': list(upstreamResults[3]),
+#	 'upstreamNeutronFail': list(upstreamResults[4]),
+#	 'upstreamNeutronMiss': list(upstreamResults[5]),
+ #        'name': name,
+#	 'start': mainDataSet[0],
+#	 'end': mainDataSet[1],
+ #        'granular': timeGranular,
+  #    }
+#   else:
+#      context = {
+#	 'novaSuccess': list(mainResults[0]),
+#	 'novaFail': list(mainResults[1]),
+#	 'novaMiss': list(mainResults[2]),
+#	 'neutronSuccess': list(mainResults[3]), 
+#	 'neutronFail': list(mainResults[4]),
+#	 'neutronMiss': list(mainResults[5]),
+#	 'totalSuccess': mainResults[6],
+#	 'totalFail': mainResults[7],
+#	 'totalMiss': mainResults[8],
+#	 'upstreamNovaSuccess': list(),
+#	 'upstreamNovaFail': list(),
+#	 'upstreamNovaMiss': list(),
+#	 'upstreamNeutronSuccess': list(),
+#	 'upstreamNeutronFail': list(),
+#	 'upstreamNeutronMiss': list(),
+ #        'name': name,
+#	 'start': mainDataSet[0],
+#	 'end': mainDataSet[1],
+#         'granular': timeGranular,
+#      }
 
    return render_to_response("aggregator/detail.html", context, context_instance = RequestContext(request))
 
@@ -106,6 +125,56 @@ def insertOrIncrement(container, val):
       container[val] += 1
    else:
       container[val] = 1
+
+def _getWorkerDetails(data, timeGranular, name, getTotals):
+   sources = Source.objects.all()
+   ret = {}
+   for source in sources:
+      if source.worker != name:
+         continue
+      project = source.project
+      if project in ret:
+         continue
+      results = data.filter(project=project).order_by("time")
+      _success = {}
+      _fail = {}
+      _miss = {}
+
+      for d in results:
+         d.date = int(d.date.strftime('%s'))*1000
+         if timeGranular:
+            timeOffset = d.date + (d.time.hour * 3600 * 1000)
+         else:
+            timeOffset = d.date
+         if d.success:
+            insertOrIncrement(_success, timeOffset)
+         elif d.missed:
+            insertOrIncrement(_miss, timeOffset)
+         else:
+            insertOrIncrement(_fail, timeOffset) 
+
+      success = []
+      fail = []
+      miss = []
+      for key in _success:
+	 success += [[key,_success[key]]]
+      for key in _fail:
+	 fail += [[key,_fail[key]]]
+      for key in _miss:
+	 miss += [[key,_miss[key]]]
+
+      success = sorted(success, key=lambda l:l[0])
+      fail = sorted(fail, key=lambda l:l[0])
+      miss = sorted(miss, key=lambda l:l[0])
+      ret[project] = [success,fail,miss]
+
+   if getTotals:
+      totalSuccess = len(list(data.filter(success=True)))
+      totalFail = len(list(data.filter(success=False,missed=False)))
+      totalMiss = len(list(data.filter(missed=True)))
+      ret["total"] = [totalSuccess, totalFail, totalMiss]
+
+   return ret
 
 # Get details for the worker, both Nova and Neutron data
 def getWorkerDetails(data, timeGranular, getTotals):

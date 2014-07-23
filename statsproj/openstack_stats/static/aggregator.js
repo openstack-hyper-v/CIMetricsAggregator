@@ -163,20 +163,46 @@ function processData(project) {
    var upstreamSuccess;
    var upstreamFail;
    var upstreamMiss;
+
    if (project == "nova") {
-      success = novaSuccess;
-      fail = novaFail;
-      miss = novaMiss;
-      upstreamSuccess = upstreamNovaSuccess;
-      upstreamFail = upstreamNovaFail;
-      upstreamMiss = upstreamNovaMiss;
+      try {
+         success = novaSuccess;
+         fail = novaFail;
+         miss = novaMiss;
+      } catch (err) {
+         success = []; 
+         fail = [];
+         miss = [];
+      }
+
+      try {
+         upstreamSuccess = upstreamNovaSuccess;
+         upstreamFail = upstreamNovaFail;
+         upstreamMiss = upstreamNovaMiss;
+      } catch (err) {
+         upstreamSuccess = []; 
+         upstreamFail = [];
+         upstreamMiss = []; 
+      }
    } else if (project == "neutron") {
-      success = neutronSuccess;
-      fail = neutronFail;
-      miss = neutronMiss;
-      upstreamSuccess = upstreamNeutronSuccess;
-      upstreamFail = upstreamNeutronFail;
-      upstreamMiss = upstreamNeutronMiss;
+      try {
+         success = neutronSuccess;
+         fail = neutronFail;
+         miss = neutronMiss;
+      } catch (err) {
+         success = []; 
+         fail = [];
+         miss = [];
+      }
+      try {
+         upstreamSuccess = upstreamNeutronSuccess;
+         upstreamFail = upstreamNeutronFail;
+         upstreamMiss = upstreamNeutronMiss;
+      } catch (err) {
+         upstreamSuccess = []; 
+         upstreamFail = [];
+         upstreamMiss = []; 
+      }
    } else {
       return null;
    }
@@ -216,34 +242,46 @@ function processData(project) {
 $(document).ready(function() {
    // Set up the datepicker divs
    $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
+   $('#total').html("Total: " + (totalSuccess+totalFail+totalMiss));
+   $('#success').html("Success: " + totalSuccess);
+   $('#failed').html("Failed: " + totalFail);
+   $('#missed').html("Missed: " + totalMiss);
 
    // Process the nova data and setup the nova charts
    var novaData = processData("nova");
    var novaSums = novaData[0];
-   novaData = novaData[1];
-   insertCheckBoxes("#novachartlegend", novaData, "nova");
-   $("#novachartlegend").find("input").click(function() {plotLines("#novachart", novaData);});
-   plotLines("#novachart",novaData);
-
-   var novapiedata = [{"label": "Failed", "data": novaSums[1], "color": "#CD4B4B"},
-		  {"label": "Success", "data": novaSums[0], "color": "#356AA0"},
-		  {"label": "Missed", "data": novaSums[2], "color": "#555"}];
-   plotPie("#novapiechart", novapiedata);
    var totalNova = novaSums[0] + novaSums[1] + novaSums[2];
    $("#novaInfo").html("<h3>Total: " + totalNova + "</h3><h3>Success: " + novaSums[1] + "</h3><h3>Failed: " + novaSums[0] + "</h3><h3>Missed: " + novaSums[2] + "</h3>");
+   if (totalNova > 0) {
+      novaData = novaData[1];
+      insertCheckBoxes("#novachartlegend", novaData, "nova");
+      $("#novachartlegend").find("input").click(function() {plotLines("#novachart", novaData);});
+      plotLines("#novachart",novaData);
+
+      var novapiedata = [{"label": "Failed", "data": novaSums[1], "color": "#CD4B4B"},
+		     {"label": "Success", "data": novaSums[0], "color": "#356AA0"},
+		     {"label": "Missed", "data": novaSums[2], "color": "#555"}];
+      plotPie("#novapiechart", novapiedata);
+   } else {
+      $("#novachart").html("<p>No data available or has been unselected in data model.</p>").css({height: 'auto'});
+   }
 
    // Process the neutron data and setup the neutron charts
    var neutronData = processData("neutron");
    var neutronSums = neutronData[0];
-   neutronData = neutronData[1];
-   insertCheckBoxes("#neutronchartlegend", neutronData, "neutron");
-   $("#neutronchartlegend").find("input").click(function() {plotLines("#neutronchart", neutronData);});
-   plotLines("#neutronchart",neutronData);
-
-   var neutronpiedata = [{"label": "Failed", "data": neutronSums[1], "color": "#CD4B4B"},
-		  {"label": "Success", "data": neutronSums[0], "color": "#356AA0"},
-		  {"label": "Missed", "data": neutronSums[2], "color": "#555"}]
-   plotPie("#neutronpiechart", neutronpiedata);
    var totalNeutron = neutronSums[0] + neutronSums[1] + neutronSums[2];
    $("#neutronInfo").html("<h3>Total: " + totalNeutron + "</h3><h3>Success: " + neutronSums[1] + "</h3><h3>Failed: " + neutronSums[0] + "</h3><h3>Missed: " + neutronSums[2] + "</h3>");
+   if (totalNeutron > 0) {
+      neutronData = neutronData[1];
+      insertCheckBoxes("#neutronchartlegend", neutronData, "neutron");
+      $("#neutronchartlegend").find("input").click(function() {plotLines("#neutronchart", neutronData);});
+      plotLines("#neutronchart",neutronData);
+
+      var neutronpiedata = [{"label": "Failed", "data": neutronSums[1], "color": "#CD4B4B"},
+		     {"label": "Success", "data": neutronSums[0], "color": "#356AA0"},
+		     {"label": "Missed", "data": neutronSums[2], "color": "#555"}]
+      plotPie("#neutronpiechart", neutronpiedata);
+   } else {
+      $("#neutronchart").html("<p>No data available or has been unselected in data model.</p>").css({height: 'auto'});
+   }
 });

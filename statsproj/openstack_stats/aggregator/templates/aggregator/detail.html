@@ -29,30 +29,18 @@
    {% else %}
    var showTime = false;
    {% endif %}
-   var novaSuccess = {{ novaSuccess|safe }};
+   
+   {% for key, value in upstreamResults.items %}
+   var upstream{{ key|cut:"openstack/"|capfirst }}Success = {{ value.0 }};
+   var upstream{{ key|cut:"openstack/"|capfirst }}Fail = {{ value.1 }};
+   var upstream{{ key|cut:"openstack/"|capfirst }}Miss = {{ value.2 }};
+   {% endfor %}
 
-   var novaFail = {{ novaFail|safe }};
-
-   var novaMiss = {{ novaMiss|safe }};
-
-   var neutronSuccess = {{ neutronSuccess|safe }};
-
-   var neutronFail = {{ neutronFail|safe }};
-
-   var neutronMiss = {{ neutronMiss|safe }};
-
-   var upstreamNovaSuccess = {{ upstreamNovaSuccess|safe }};
-
-   var upstreamNovaFail = {{ upstreamNovaFail|safe }};
-
-   var upstreamNovaMiss = {{ upstreamNovaMiss|safe }};
-
-   var upstreamNeutronSuccess = {{ upstreamNeutronSuccess|safe }};
-
-   var upstreamNeutronFail = {{ upstreamNeutronFail|safe }};
-
-   var upstreamNeutronMiss = {{ upstreamNeutronMiss|safe }};
-
+   {% for key, value in mainResults.items %}
+   var {{ key|cut:"openstack/" }}Success = {{ value.0 }};
+   var {{ key|cut:"openstack/" }}Fail = {{ value.1 }};
+   var {{ key|cut:"openstack/" }}Miss = {{ value.2 }};
+   {% endfor %}
 </script>
 <script type="text/javascript" src="/static/aggregator.js"></script>
 <link href="/static/themes/base/jquery-ui.css" rel="stylesheet" type="text/css">
@@ -63,18 +51,14 @@
 <div id="content">
    <div id="sidebar">
       <h2>{{ name }} Results</h2><br />
-      {% if totalSuccess or totalFail or totalMiss %}
-         <h2>Total: {{ totalSuccess|add:totalFail|add:totalMiss }}</h2>
-         <h2>Success: {{ totalSuccess }}</h2>
-         <h2>Failed: {{ totalFail }}</h2>
-         <h2>Missed: {{ totalMiss }}</h2><br />
-         <h2>Nova:</h3>
-         <div id="novaInfo"></div>
-         <h2>Neutron:</h3>
-         <div id="neutronInfo"></div>
-      {% else %}
-         <p> No data available!</p>
-      {% endif %}
+      <h2 id="total"></h2>
+      <h2 id="success"></h2>
+      <h2 id="failed"></h2>
+      <h2 id="missed"></h2><br />
+      <h2>Nova:</h3>
+      <div id="novaInfo"></div>
+      <h2>Neutron:</h3>
+      <div id="neutronInfo"></div>
       <div id="links">
       <ul>
       <li><a href="/">Go Back</a></li>
