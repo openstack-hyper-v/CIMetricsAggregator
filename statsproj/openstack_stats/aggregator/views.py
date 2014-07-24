@@ -12,7 +12,6 @@ from django.http import HttpResponse
 from aggregator.models import *
 from datetime import timedelta, datetime
 import time
-import simplejson
 
 # Simple index page renderer
 @login_required
@@ -143,9 +142,9 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
       for d in results:
          d.date = int(d.date.strftime('%s'))*1000
          if timeGranular:
-            timeOffset = d.date + (d.time.hour * 3600 * 1000)
+            timeOffset = str(d.date + (d.time.hour * 3600 * 1000))
          else:
-            timeOffset = d.date
+            timeOffset = str(d.date)
          if d.success:
             insertOrIncrement(_success, timeOffset)
          elif d.missed:

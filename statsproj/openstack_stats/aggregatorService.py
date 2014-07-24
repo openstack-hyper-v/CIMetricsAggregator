@@ -28,7 +28,8 @@ def getGerritChangeRequest(cid):
 
 # For a particular project, get a list of associated change ID's
 def getChanges(project):
-   url = "https://review.openstack.org/changes/?q=status:open&q=project:"+project
+   # get all open and merged changes (ignoring abandoned)
+   url = "https://review.openstack.org/changes/?q=status:open+project:"+project+"&q=status:merged+project:"+project
    req = addheaders(urllib2.Request(url))
    res = urllib2.urlopen(req)
    # ignore first line
@@ -37,7 +38,7 @@ def getChanges(project):
    parser = ijson.parse(res)
    cids = []
    for prefix, event, value in parser:
-      if prefix == 'item._number':
+      if "_number" in prefix:
          cids.append(value)
    return cids
 

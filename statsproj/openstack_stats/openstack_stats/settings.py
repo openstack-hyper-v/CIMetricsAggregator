@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_windows_tools',
     'aggregator',
 )
 
@@ -61,8 +60,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Metrics',
-        'USER': 'YOUR_USERNAME',
-        'PASSWORD': 'YOUR_PASSWORD',
+        'USER': 'cimetrics',
+        'PASSWORD': 'cimetrics',
         'HOST': 'localhost',
         'PORT': '3306',
     }

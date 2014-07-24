@@ -31,15 +31,15 @@
    {% endif %}
    
    {% for key, value in upstreamResults.items %}
-   var upstream{{ key|cut:"openstack/"|capfirst }}Success = {{ value.0 }};
-   var upstream{{ key|cut:"openstack/"|capfirst }}Fail = {{ value.1 }};
-   var upstream{{ key|cut:"openstack/"|capfirst }}Miss = {{ value.2 }};
+   var upstream{{ key|cut:"openstack/"|capfirst }}Success = {{ value.0|safe }};
+   var upstream{{ key|cut:"openstack/"|capfirst }}Fail = {{ value.1|safe }};
+   var upstream{{ key|cut:"openstack/"|capfirst }}Miss = {{ value.2|safe }};
    {% endfor %}
 
    {% for key, value in mainResults.items %}
-   var {{ key|cut:"openstack/" }}Success = {{ value.0 }};
-   var {{ key|cut:"openstack/" }}Fail = {{ value.1 }};
-   var {{ key|cut:"openstack/" }}Miss = {{ value.2 }};
+   var {{ key|cut:"openstack/" }}Success = {{ value.0|safe }};
+   var {{ key|cut:"openstack/" }}Fail = {{ value.1|safe }};
+   var {{ key|cut:"openstack/" }}Miss = {{ value.2|safe }};
    {% endfor %}
 </script>
 <script type="text/javascript" src="/static/aggregator.js"></script>
@@ -69,9 +69,11 @@
 
    <div id="main"><br />
       <form action="#" method="post"> {% csrf_token %}
-         Start:&nbsp;<input type="text" class="datepicker" name="start" value="{{ start }}"/>&nbsp;End:&nbsp;<input type="text" class="datepicker" name="end" value="{{ end }}"/>&nbsp;
+         Start:&nbsp;<input type="text" class="datepicker" name="start" value="{{ start }}"/>&nbsp;
+         End:&nbsp;<input type="text" class="datepicker" name="end" value="{{ end }}"/>&nbsp;
          <input type="submit" name="submit" value="Submit">&nbsp;
-         <input type="checkbox" name="timeGranular" id="timeGranular" {% if granular %}checked{% endif %} /><label for="timeGranular">High Granularity</label>&nbsp;
+         <input type="checkbox" name="timeGranular" id="timeGranular" {% if granular %}checked{% endif %} />
+         <label for="timeGranular">High Granularity</label>&nbsp;
       </form>
       <table class="graphtable">
       <tr>
