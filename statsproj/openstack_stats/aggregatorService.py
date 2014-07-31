@@ -8,7 +8,7 @@ from datetime import datetime
 from time import sleep
 
 # Add headers to url request to masquerade as a JSON request
-def addheaders(req):
+def addHeaders(req):
    req.add_header('Content-Disposition', 'attachment')
    req.add_header('X-Content-Type-Options', 'nosniff')
    req.add_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
@@ -19,7 +19,7 @@ def addheaders(req):
 # Retrieve a list of details about a particular change ID
 def getGerritChangeRequest(cid):
    url = "https://review.openstack.org/changes/"+str(cid)+"/detail"
-   req = addheaders(urllib2.Request(url))
+   req = addHeaders(urllib2.Request(url))
    res = urllib2.urlopen(req)
    # ignore first line
    for line in res:
@@ -30,16 +30,19 @@ def getGerritChangeRequest(cid):
 def getChanges(project):
    # get all open and merged changes (ignoring abandoned)
    url = "https://review.openstack.org/changes/?q=status:open+project:"+project+"&q=status:merged+project:"+project
-   req = addheaders(urllib2.Request(url))
+   req = addHeaders(urllib2.Request(url))
    res = urllib2.urlopen(req)
+
    # ignore first line
    for line in res:
       break
+
    parser = ijson.parse(res)
    cids = []
    for prefix, event, value in parser:
       if "_number" in prefix:
          cids.append(value)
+
    return cids
 
 # Merge the change details for a worker/project into the DB
@@ -151,9 +154,9 @@ def foundIn(item, objects):
 
 # Look for any jobs marked as missed that were later submitted
 # (i.e. fix up the false negatives)
-def fixup(project,worker, change):
-   missed = change.objects.filter(project=project,worker=worker,missed=True)
-   unMissed = change.objects.filter(project=project,worker=worker,missed=False)
+def fixup(project,worker):
+   missed = Change.objects.filter(project=project,worker=worker,missed=True)
+   unMissed = Change.objects.filter(project=project,worker=worker,missed=False)
    erroneous = [x for x in missed if foundIn(x,unMissed)]
    for c in erroneous:
       c.delete()
@@ -167,7 +170,7 @@ if __name__ == "__main__":
       for source in sources:
          project = source.project
          worker = source.worker
-         fixup(project, worker, Change)
+         fixup(project, worker)
          threads.append(threading.Thread(target=workerThread, args=(project, worker)))
       # start threads
       for thread in threads:

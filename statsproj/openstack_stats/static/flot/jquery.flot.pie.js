@@ -491,7 +491,11 @@ More detail and specific examples can be found in the included HTML file.
 						var halfAngle = ((startAngle + slice.angle) + startAngle) / 2;
 						var x = centerLeft + Math.round(Math.cos(halfAngle) * radius);
 						var y = centerTop + Math.round(Math.sin(halfAngle) * radius) * options.series.pie.tilt;
-
+						var label = slice.label + " " + Math.round(slice.percent) + "%";
+                                                ctx.font="9px Verdana";
+						ctx.fillStyle="#FFF";
+                                                ctx.fillText(label, x-ctx.measureText(label).width/2, y);
+                                                return true;
 						var html = "<span class='pieLabel' id='pieLabel" + index + "' style='position:absolute;top:" + y + "px;left:" + x + "px;'>" + text + "</span>";
 						target.append(html);
 
@@ -782,7 +786,7 @@ More detail and specific examples can be found in the included HTML file.
 					left: "auto"
 				},
 				stroke: {
-					color: "#fff",
+					color: "#444",
 					width: 1
 				},
 				label: {

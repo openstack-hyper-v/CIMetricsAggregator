@@ -168,11 +168,11 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
       ret[project] = [success,fail,miss]
 
    if getTotals:
-      totalSuccess = len(list(data.filter(success=True)))
-      totalFail = len(list(data.filter(success=False,missed=False)))
-      totalMiss = len(list(data.filter(missed=True)))
-      ret["total"] = [totalSuccess, totalFail, totalMiss]
-
+      totalSuccess = data.filter(success=True)
+      totalFail = data.filter(success=False,missed=False)
+      totalMiss = data.filter(missed=True)
+      ret["total"] = [len(list(totalSuccess)), len(list(totalFail)), len(list(totalMiss))]
+      ret["patchset"] = [len(list(totalSuccess.values('cid','pid').distinct())), len(list(totalFail.values('cid','pid').distinct())), len(list(totalMiss.values('cid','pid').distinct()))]
    return ret
 
 # Get details for the worker, both Nova and Neutron data

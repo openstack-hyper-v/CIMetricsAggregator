@@ -134,11 +134,10 @@ function plotPie(div, data) {
 	  pie: {
 	      show: true,
 	      radius: 1,
-	      label: { radius: 3/4, 
+              stroke: { color: "#eee", width: 0.5 },
+	      label: { radius: 5/8, 
 		       show: true, 
-		       formatter: function(label, series){
-			  return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-		       },
+                       threshold: 0.01,
 		     }
 	  }
       },
@@ -242,16 +241,21 @@ function processData(project) {
 $(document).ready(function() {
    // Set up the datepicker divs
    $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
-   $('#total').html("Total: " + (totalSuccess+totalFail+totalMiss));
-   $('#success').html("Success: " + totalSuccess);
-   $('#failed').html("Failed: " + totalFail);
-   $('#missed').html("Missed: " + totalMiss);
+ 
+   $('#total').html(totalSuccess+totalFail+totalMiss);
+   $('#success').html(totalSuccess);
+   $('#failed').html(totalFail);
+   $('#missed').html(totalMiss);
+   $('#totalps').html(patchsetSuccess+patchsetFail+patchsetMiss);
+   $('#successps').html(patchsetSuccess);
+   $('#failedps').html(patchsetFail);
+   $('#missedps').html(patchsetMiss);
 
    // Process the nova data and setup the nova charts
    var novaData = processData("nova");
    var novaSums = novaData[0];
    var totalNova = novaSums[0] + novaSums[1] + novaSums[2];
-   $("#novaInfo").html("<h3>Total: " + totalNova + "</h3><h3>Success: " + novaSums[1] + "</h3><h3>Failed: " + novaSums[0] + "</h3><h3>Missed: " + novaSums[2] + "</h3>");
+   $("#novaInfo").html("<strong>Total:</strong> " + totalNova + "<br /><strong>Success:</strong> " + novaSums[1] + "<br /><strong>Failed:</strong> " + novaSums[0] + "<br /><strong>Missed:</strong> " + novaSums[2]);
    if (totalNova > 0) {
       novaData = novaData[1];
       insertCheckBoxes("#novachartlegend", novaData, "nova");
@@ -270,7 +274,7 @@ $(document).ready(function() {
    var neutronData = processData("neutron");
    var neutronSums = neutronData[0];
    var totalNeutron = neutronSums[0] + neutronSums[1] + neutronSums[2];
-   $("#neutronInfo").html("<h3>Total: " + totalNeutron + "</h3><h3>Success: " + neutronSums[1] + "</h3><h3>Failed: " + neutronSums[0] + "</h3><h3>Missed: " + neutronSums[2] + "</h3>");
+   $("#neutronInfo").html("<strong>Total:</strong> " + totalNeutron + "<br /><strong>Success:</strong> " + neutronSums[1] + "<br /><strong>Failed:</strong> " + neutronSums[0] + "<br /><strong>Missed:</strong> " + neutronSums[2]);
    if (totalNeutron > 0) {
       neutronData = neutronData[1];
       insertCheckBoxes("#neutronchartlegend", neutronData, "neutron");
@@ -284,4 +288,18 @@ $(document).ready(function() {
    } else {
       $("#neutronchart").html("<p>No data available or has been unselected in data model.</p>").css({height: 'auto'});
    }
+   $("#sidebar").css({"width": "auto", "max-width": "200px"});
+   $("#sidebar").width("auto");
+   $("#main").css("padding-left", $("#sidebar").width()+20);
+   $("#print").click(function(e) {
+      var win = window.open();
+      win.document.write("<table>");
+      win.document.write("<tr><td><h3>Nova</h3>"+$("#novaInfo").html()+"</td>");
+      win.document.write("<td><img src=\""+$("#novachart").children()[0].toDataURL()+"\"/></td>");
+      win.document.write("<td><img src=\""+$("#novapiechart").children()[0].toDataURL()+"\"/></td></tr>");
+      win.document.write("<tr><td><h3>Neutron</h3>"+$("#neutronInfo").html()+"</td>");
+      win.document.write("<td><img src=\""+$("#neutronchart").children()[0].toDataURL()+"\"/></td>");
+      win.document.write("<td><img src=\""+$("#neutronpiechart").children()[0].toDataURL()+"\"/></td></tr>");
+      win.document.write("</table>");
+   });
 });
