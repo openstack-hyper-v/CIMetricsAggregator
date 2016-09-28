@@ -1,0 +1,121 @@
+<!--
+   Interface for Openstack CI metrics tool.
+   Copyright 2014 Gabriel Loewen
+   Microsoft Openstack CI Lab team
+-->
+
+<!doctype html>
+<html>
+<head>
+{% load staticfiles %}
+<script src="/static/jquery-1.9.1.js" type="text/javascript"></script>
+<script src="/static/jquery-ui.js" type="text/javascript"></script>
+<script src="/static/jquery-migrate-1.2.1.js" type="text/javascript"></script>
+<script src="/static/jquery.printElement.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.resize.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.time.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.canvas.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.pie.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.symbol.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.legendoncanvas.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.crosshair.js" type="text/javascript"></script>
+<script src="/static/base64.js" type="text/javascript"></script>
+<script src="/static/canvas2image.js" type="text/javascript"></script>
+<script src="/static/flot/jquery.flot.saveAsImage.js" type="text/javascript"></script>
+
+<!-- Get variables from Django, and pass them into corresponding Javascript arrays -->
+<script type="text/javascript">
+   {% if granular == True %}
+   var showTime = true;
+   {% else %}
+   var showTime = false;
+   {% endif %}
+   
+   {% for key, value in upstreamResults.items %}
+   var upstream{{ key|cut:"openstack/"|lower }}Success = {{ value.0|safe }};
+   var upstream{{ key|cut:"openstack/"|lower }}Fail = {{ value.1|safe }};
+   var upstream{{ key|cut:"openstack/"|lower }}Miss = {{ value.2|safe }};
+   {% endfor %}
+
+   {% for key, value in mainResults.items %}
+   var {{ key|cut:"openstack/"|lower }}Success = {{ value.0|safe }};
+   var {{ key|cut:"openstack/"|lower }}Fail = {{ value.1|safe }};
+   var {{ key|cut:"openstack/"|lower }}Miss = {{ value.2|safe }};
+   {% endfor %}
+
+   {% for p in projects.items %}
+   console.log({{ p|safe }});
+   {% endfor %}
+
+   var projects = {{ projects|safe }};
+
+function printDiv()
+{
+  var divToPrint=$("#main");
+  newWin= window.open("");
+  newWin.document.write(divToPrint.outerHTML);
+  newWin.print();
+  newWin.close();
+}
+
+</script>
+<script type="text/javascript" src="/static/aggregator.js"></script>
+<link href="/static/themes/base/jquery-ui.css" rel="stylesheet" type="text/css">
+<link href="/static/aggregator.css" rel="stylesheet" type="text/css">
+<title>CI Lab Metrics Results</title>
+</head>
+<body>
+<div id="content">
+   <div id="sidebar">
+      <h3 style="text-align: center;">{{ name }} Results</h3><br />
+      <table style="width: 100%;">
+      <tr>
+      <td></td>
+      <td><strong>Tests</strong></td>
+      <td><strong>Patchsets</strong></td>
+      </tr>
+      <tr>
+      <td><strong>Total</strong></td>
+      <td id="total"></td>
+      <td id="totalps"></td>
+      </tr>
+      <tr>
+      <td><strong>Success</strong></td>
+      <td id="success"></td>
+      <td id="successps"></td>
+      </tr>
+      <tr>
+      <td><strong>Failed</strong></td>
+      <td id="failed"></td>
+      <td id="failedps"></td>
+      </tr>
+      <tr>
+      <td><strong>Missed</strong></td>
+      <td id="missed"></td>
+      <td id="missedps"></td>
+      </tr>
+      </table><br />
+      <div id="projectStats"></div>
+      <div id="links">
+      <ul>
+      <li><a id="print" href="javascript:void(0)">Print</a></li>
+      <li><a href="/">Go Back</a></li>
+      <li><a href="/accounts/logout">Logout</a></li>
+      </ul>
+      </div>
+   </div>
+
+   <div id="main"><br />
+      <form action="#" method="post"> {% csrf_token %}
+         Start:&nbsp;<input type="text" class="datepicker" name="start" value="{{ start }}"/>&nbsp;
+         End:&nbsp;<input type="text" class="datepicker" name="end" value="{{ end }}"/>&nbsp;
+         <input type="submit" name="submit" value="Submit">&nbsp;
+         <input type="checkbox" name="timeGranular" id="timeGranular" {% if granular %}checked{% endif %} />
+         <label for="timeGranular">High Granularity</label>&nbsp;
+      </form>
+   </div>
+</div>
+<div id="tooltip"></div>
+</body>
+</html>
