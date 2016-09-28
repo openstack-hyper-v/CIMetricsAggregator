@@ -44,8 +44,8 @@ def detail(request, name):
       context = {
          'mainResults': _mainResults,
          'upstreamResults': _upstreamResults,
-	 'start': mainDataSet[0],
-	 'end': mainDataSet[1],
+         'start': mainDataSet[0],
+         'end': mainDataSet[1],
          'granular': timeGranular,
          'name': name
       }
@@ -53,53 +53,53 @@ def detail(request, name):
       context = {
          'mainResults': _mainResults,
          'upstreamResults': list(),
-	 'start': mainDataSet[0],
-	 'end': mainDataSet[1],
+         'start': mainDataSet[0],
+         'end': mainDataSet[1],
          'granular': timeGranular,
          'name': name
       }
 
       #context = {
-#	 'novaSuccess': list(mainResults[0]),
-#	 'novaFail': list(mainResults[1]),
-#	 'novaMiss': list(mainResults[2]),
-#	 'neutronSuccess': list(mainResults[3]), 
-#	 'neutronFail': list(mainResults[4]),
-#	 'neutronMiss': list(mainResults[5]),
-#	 'totalSuccess': mainResults[6],
-#	 'totalFail': mainResults[7],
-#	 'totalMiss': mainResults[8],
-#	 'upstreamNovaSuccess': list(upstreamResults[0]),
-#	 'upstreamNovaFail': list(upstreamResults[1]),
-#	 'upstreamNovaMiss': list(upstreamResults[2]),
-#	 'upstreamNeutronSuccess': list(upstreamResults[3]),
-#	 'upstreamNeutronFail': list(upstreamResults[4]),
-#	 'upstreamNeutronMiss': list(upstreamResults[5]),
+#        'novaSuccess': list(mainResults[0]),
+#        'novaFail': list(mainResults[1]),
+#        'novaMiss': list(mainResults[2]),
+#        'neutronSuccess': list(mainResults[3]),
+#        'neutronFail': list(mainResults[4]),
+#        'neutronMiss': list(mainResults[5]),
+#        'totalSuccess': mainResults[6],
+#        'totalFail': mainResults[7],
+#        'totalMiss': mainResults[8],
+#        'upstreamNovaSuccess': list(upstreamResults[0]),
+#        'upstreamNovaFail': list(upstreamResults[1]),
+#        'upstreamNovaMiss': list(upstreamResults[2]),
+#        'upstreamNeutronSuccess': list(upstreamResults[3]),
+#        'upstreamNeutronFail': list(upstreamResults[4]),
+#        'upstreamNeutronMiss': list(upstreamResults[5]),
  #        'name': name,
-#	 'start': mainDataSet[0],
-#	 'end': mainDataSet[1],
+#        'start': mainDataSet[0],
+#        'end': mainDataSet[1],
  #        'granular': timeGranular,
   #    }
 #   else:
 #      context = {
-#	 'novaSuccess': list(mainResults[0]),
-#	 'novaFail': list(mainResults[1]),
-#	 'novaMiss': list(mainResults[2]),
-#	 'neutronSuccess': list(mainResults[3]), 
-#	 'neutronFail': list(mainResults[4]),
-#	 'neutronMiss': list(mainResults[5]),
-#	 'totalSuccess': mainResults[6],
-#	 'totalFail': mainResults[7],
-#	 'totalMiss': mainResults[8],
-#	 'upstreamNovaSuccess': list(),
-#	 'upstreamNovaFail': list(),
-#	 'upstreamNovaMiss': list(),
-#	 'upstreamNeutronSuccess': list(),
-#	 'upstreamNeutronFail': list(),
-#	 'upstreamNeutronMiss': list(),
+#        'novaSuccess': list(mainResults[0]),
+#        'novaFail': list(mainResults[1]),
+#        'novaMiss': list(mainResults[2]),
+#        'neutronSuccess': list(mainResults[3]),
+#        'neutronFail': list(mainResults[4]),
+#        'neutronMiss': list(mainResults[5]),
+#        'totalSuccess': mainResults[6],
+#        'totalFail': mainResults[7],
+#        'totalMiss': mainResults[8],
+#        'upstreamNovaSuccess': list(),
+#        'upstreamNovaFail': list(),
+#        'upstreamNovaMiss': list(),
+#        'upstreamNeutronSuccess': list(),
+#        'upstreamNeutronFail': list(),
+#        'upstreamNeutronMiss': list(),
  #        'name': name,
-#	 'start': mainDataSet[0],
-#	 'end': mainDataSet[1],
+#        'start': mainDataSet[0],
+#        'end': mainDataSet[1],
 #         'granular': timeGranular,
 #      }
 
@@ -150,17 +150,17 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
          elif d.missed:
             insertOrIncrement(_miss, timeOffset)
          else:
-            insertOrIncrement(_fail, timeOffset) 
+            insertOrIncrement(_fail, timeOffset)
 
       success = []
       fail = []
       miss = []
       for key in _success:
-	 success += [[key,_success[key]]]
+         success += [[key,_success[key]]]
       for key in _fail:
-	 fail += [[key,_fail[key]]]
+         fail += [[key,_fail[key]]]
       for key in _miss:
-	 miss += [[key,_miss[key]]]
+         miss += [[key,_miss[key]]]
 
       success = sorted(success, key=lambda l:l[0])
       fail = sorted(fail, key=lambda l:l[0])
@@ -168,11 +168,11 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
       ret[project] = [success,fail,miss]
 
    if getTotals:
-      totalSuccess = data.filter(success=True)
-      totalFail = data.filter(success=False,missed=False)
-      totalMiss = data.filter(missed=True)
-      ret["total"] = [len(list(totalSuccess)), len(list(totalFail)), len(list(totalMiss))]
-      ret["patchset"] = [len(list(totalSuccess.values('cid','pid').distinct())), len(list(totalFail.values('cid','pid').distinct())), len(list(totalMiss.values('cid','pid').distinct()))]
+      totalSuccess = len(list(data.filter(success=True)))
+      totalFail = len(list(data.filter(success=False,missed=False)))
+      totalMiss = len(list(data.filter(missed=True)))
+      ret["total"] = [totalSuccess, totalFail, totalMiss]
+
    return ret
 
 # Get details for the worker, both Nova and Neutron data
@@ -197,7 +197,7 @@ def getWorkerDetails(data, timeGranular, getTotals):
       elif d.missed:
          insertOrIncrement(_novaMiss, timeOffset)
       else:
-         insertOrIncrement(_novaFail, timeOffset) 
+         insertOrIncrement(_novaFail, timeOffset)
 
    novaSuccess = []
    novaFail = []
@@ -233,7 +233,7 @@ def getWorkerDetails(data, timeGranular, getTotals):
       elif d.missed:
          insertOrIncrement(_neutronMiss, timeOffset)
       else:
-         insertOrIncrement(_neutronFail, timeOffset) 
+         insertOrIncrement(_neutronFail, timeOffset)
 
    neutronSuccess = []
    neutronFail = []
@@ -244,8 +244,8 @@ def getWorkerDetails(data, timeGranular, getTotals):
       neutronFail += [[key,_neutronFail[key]]]
    for key in _neutronMiss:
       neutronMiss += [[key,_neutronMiss[key]]]
- 
-   # Sort the neutron data based on date/timestamp 
+
+   # Sort the neutron data based on date/timestamp
    neutronSuccess = sorted(neutronSuccess, key=lambda l:l[0])
    neutronFail = sorted(neutronFail, key=lambda l:l[0])
    neutronMiss = sorted(neutronMiss, key=lambda l:l[0])

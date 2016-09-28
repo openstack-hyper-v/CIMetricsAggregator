@@ -10,8 +10,6 @@
 {% load staticfiles %}
 <script src="/static/jquery-1.9.1.js" type="text/javascript"></script>
 <script src="/static/jquery-ui.js" type="text/javascript"></script>
-<script src="/static/jquery-migrate-1.2.1.js" type="text/javascript"></script>
-<script src="/static/jquery.printElement.js" type="text/javascript"></script>
 <script src="/static/flot/jquery.flot.js" type="text/javascript"></script>
 <script src="/static/flot/jquery.flot.resize.js" type="text/javascript"></script>
 <script src="/static/flot/jquery.flot.time.js" type="text/javascript"></script>
@@ -31,7 +29,7 @@
    {% else %}
    var showTime = false;
    {% endif %}
-   
+
    {% for key, value in upstreamResults.items %}
    var upstream{{ key|cut:"openstack/"|capfirst }}Success = {{ value.0|safe }};
    var upstream{{ key|cut:"openstack/"|capfirst }}Fail = {{ value.1|safe }};
@@ -43,16 +41,6 @@
    var {{ key|cut:"openstack/" }}Fail = {{ value.1|safe }};
    var {{ key|cut:"openstack/" }}Miss = {{ value.2|safe }};
    {% endfor %}
-
-function printDiv()
-{
-  var divToPrint=$("#main");
-  newWin= window.open("");
-  newWin.document.write(divToPrint.outerHTML);
-  newWin.print();
-  newWin.close();
-}
-
 </script>
 <script type="text/javascript" src="/static/aggregator.js"></script>
 <link href="/static/themes/base/jquery-ui.css" rel="stylesheet" type="text/css">
@@ -62,41 +50,17 @@ function printDiv()
 <body>
 <div id="content">
    <div id="sidebar">
-      <h3 style="text-align: center;">{{ name }} Results</h3><br />
-      <table style="width: 100%;">
-      <tr>
-      <td></td>
-      <td><strong>Tests</strong></td>
-      <td><strong>Patchsets</strong></td>
-      </tr>
-      <tr>
-      <td><strong>Total</strong></td>
-      <td id="total"></td>
-      <td id="totalps"></td>
-      </tr>
-      <tr>
-      <td><strong>Success</strong></td>
-      <td id="success"></td>
-      <td id="successps"></td>
-      </tr>
-      <tr>
-      <td><strong>Failed</strong></td>
-      <td id="failed"></td>
-      <td id="failedps"></td>
-      </tr>
-      <tr>
-      <td><strong>Missed</strong></td>
-      <td id="missed"></td>
-      <td id="missedps"></td>
-      </tr>
-      </table><br />
-      <h3>Nova:</h3>
+      <h2>{{ name }} Results</h2><br />
+      <h2 id="total"></h2>
+      <h2 id="success"></h2>
+      <h2 id="failed"></h2>
+      <h2 id="missed"></h2><br />
+      <h2>Nova:</h3>
       <div id="novaInfo"></div>
-      <h3>Neutron:</h3>
+      <h2>Neutron:</h3>
       <div id="neutronInfo"></div>
       <div id="links">
       <ul>
-      <li><a id="print" href="javascript:void(0)">Print</a></li>
       <li><a href="/">Go Back</a></li>
       <li><a href="/accounts/logout">Logout</a></li>
       </ul>
@@ -112,17 +76,17 @@ function printDiv()
          <label for="timeGranular">High Granularity</label>&nbsp;
       </form>
       <table class="graphtable">
-      <tr class="graphheader">
-      <td colspan="2"><h3 class="inline">Nova Tests</h3><div class="legend" id="novachartlegend"></div></td>
+      <tr>
+      <td><h3 class="inline">Nova Tests</h3><div class="legend" id="novachartlegend"></div></td>
       </tr>
       <tr>
       <td class="linechart" id="novachart"></td>
       <td class="piechart" id="novapiechart"></td>
       </tr>
-      </table> 
+      </table>
       <table class="graphtable">
-      <tr class="graphheader">
-      <td colspan="2"><h3 class="inline">Neutron Tests</h3><div class="legend" id="neutronchartlegend"></div></td>
+      <tr>
+      <td><h3 class="inline">Neutron Tests</h3><div class="legend" id="neutronchartlegend"></div></td>
       </tr>
       <tr>
       <td class="linechart" id="neutronchart"></td>
