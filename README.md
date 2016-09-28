@@ -55,12 +55,12 @@ Step 7:<br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.  You can use the following upstart config, or write your own config for your init daemon of choice.<br />
 <code>
 description "CIMetrics Aggregator Service"
-author "Gabriel Loewen /<gabloe@microsoft.com/>"
+author "Gabriel Loewen <gabloe@microsoft.com>"
 
 start on runlevel [234]
 stop on runlevel [0156]
 
-exec /<SOURCE ROOT/>/openstack_stats/aggregatorService.py
+exec <SOURCE ROOT>/openstack_stats/aggregatorService.py
 #respawn
 </code>
 <br />
