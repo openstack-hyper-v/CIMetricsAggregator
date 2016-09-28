@@ -38,7 +38,7 @@ Generate the SQL structure using the following command:</br>
     python manage.py syncdb
 </code><br /><br />
 Step 5:<br />
-Start both nginx, and uwsgi services using the configurations found in the repo.<br /><br />
+Start both nginx, and uwsgi services using the configurations found in the repo.  <b>Note:</b> nginx.conf needs to be copied to /etc/nginx/sites-enabled for the configuration to be loaded properly<br /><br />
 Step 6:<br />
 Navigate to <your_server>/admin and at least add upstream Jenkins to the source model:<br />
 <code>
@@ -52,7 +52,18 @@ And,<br />
 </code>
 <br />
 Step 7:<br />
-The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
+The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.  You can use the following upstart config, or write your own config for your init daemon of choice.<br />
+
+    description "CIMetrics Aggregator Service"
+    author "Gabriel Loewen <gabloe@microsoft.com>"
+
+    start on runlevel [234]
+    stop on runlevel [0156]
+
+    exec <SOURCE ROOT>/openstack_stats/aggregatorService.py
+    #respawn
+    
+<br />
 
 Deployment Instructions (Windows)
 =================================
