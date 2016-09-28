@@ -61,9 +61,7 @@ The service that actually queries Gerrit and saves the resultant data into the d
     stop on runlevel [0156]
 
     exec <SOURCE ROOT>/openstack_stats/aggregatorService.py
-    #respawn
-    
-<br />
+    respawn
 
 Deployment Instructions (Windows)
 =================================
