@@ -62,7 +62,6 @@ The service that actually queries Gerrit and saves the resultant data into the d
 
     exec <SOURCE ROOT>/openstack_stats/aggregatorService.py
     respawn
-<br />
 
 Deployment Instructions (Windows)
 =================================
