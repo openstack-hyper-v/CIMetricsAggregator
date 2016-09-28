@@ -38,7 +38,7 @@ Generate the SQL structure using the following command:</br>
     python manage.py syncdb
 </code><br /><br />
 Step 5:<br />
-Start both nginx, and uwsgi services using the configurations found in the repo.  nginx.conf needs to be copied to /etc/nginx/sites-enabled for the configuration to be loaded properly<br /><br />
+Start both nginx, and uwsgi services using the configurations found in the repo.  <b>Note:</b> nginx.conf needs to be copied to /etc/nginx/sites-enabled for the configuration to be loaded properly<br /><br />
 Step 6:<br />
 Navigate to <your_server>/admin and at least add upstream Jenkins to the source model:<br />
 <code>
