@@ -30,6 +30,7 @@ function tooltipFormatter(dat,labels) {
    else
       output = "<h3 id=\"highlighted\">" + dat.toUTCString().substr(0, 16) + "</h3>";
    for (var i=0; i<labels.length; ++i) {
+      if (!labels[i]) continue;
       var item = labels[i];
       if (item.label == "Outage") {
          output += "<p style=\"color: red;\">Possible Outage</h3>";
@@ -43,8 +44,10 @@ function tooltipFormatter(dat,labels) {
 // Inserts a checkbox into the desired div for each series in the chart
 function insertCheckBoxes(div, data, key) {
    for (var i=0; i<data.length; ++i) {
-      if (data[i].data.length > 0) {
-         $(div).append(checkboxFormatter(data[i].label,key));
+      if (data[i].data && data[i].label) {
+         if (data[i].data.length > 0) {
+            $(div).append(checkboxFormatter(data[i].label,key));
+         }
       }
    }
 }
@@ -54,15 +57,18 @@ function plotLines(div,results) {
    var data = [];
    var container = $(div+"legend");
    container.find("input:checked").each(function() {
-      for (var i=0; i<results.length; ++i) {
-         if (this.name == results[i].label) {
-            data.push(results[i]);
-         }
+      for (var i=0; i<results.length; i+=2) {
+	 if (results[i].label && this.name == results[i].label) {
+		 data.push(results[i]);
+                 if (i <results.length-1) {
+		    data.push(results[i+1]);
+                 }
+	 }
       }
    });
    function xAxisFormatter(val, axis) {
       var found = false;
-      for (var i=0; i<data.length; ++i) {
+      for (var i=0; i<data.length; i+=2) {
          for (var j=0; j<data[i].data.length; ++j) {
             var date = data[i].data[j][0];
             if (date == val) {
@@ -76,49 +82,59 @@ function plotLines(div,results) {
 
       var date = new Date(val);
       if (showTime) {
-         return date.getUTCMonth()+1 + "/" +
-                date.getUTCDate() + "/" +
-                date.getUTCFullYear() + "\n" +
-                pad(date.getUTCHours()) + ":" +
-                pad(date.getUTCMinutes());
+	 return date.getUTCMonth()+1 + "/" +
+		date.getUTCDate() + "/" + 
+		date.getUTCFullYear() + "\n" + 
+		pad(date.getUTCHours()) + ":" + 
+		pad(date.getUTCMinutes());
       } else {
-         return date.getUTCMonth()+1 + "/" +
-                date.getUTCDate() + "/" +
-                date.getUTCFullYear();
+	 return date.getUTCMonth()+1 + "/" +
+		date.getUTCDate() + "/" + 
+		date.getUTCFullYear(); 
       }
    }
-   var plot = $.plot($(div), data, {
-      series: { lines: { show: true }, points: { show: true } },
-      grid: { hoverable: true, autoHighlight: false, backgroundColor: "#fff" },
+   var options = {
+      series: {
+         curvedLines: {
+            active: true,
+            nrSplinePoints: 20
+         }
+      },
+      grid: { hoverable: true, autoHighlight: true, backgroundColor: "#fff" },
       xaxis: { tickFormatter: xAxisFormatter, mode: "time" },
-      yaxis: { minTickSize: 1, tickFormatter: function(val, axis) { return val < axis.max ? val.toFixed(1) : "#"; }},
-      legend: { show: true, noColumns: 0, position: "nw"},
-   });
+      yaxis: { min: 0, minTickSize: 1, tickFormatter: function(val, axis) { return val < axis.max ? val.toFixed(1) : "#"; }},
+      legend: { show: true, noColumns: 0, position: "nw"}
+   };
+
+   var plot = $.plot($(div), data, options);
    $(div).unbind("plothover");
    $(div).bind("plothover", function (event, pos, item) {
        var date = null;
        if (item) {
-          date = item.datapoint[0];
-       }
+          date = item.datapoint[0]; 
+       } 
        if (date) {
-          plot.unhighlight();
-          var labels=[];
-          for (var j=0; j<data.length; ++j) {
-             for (i=0;i<data[j].data.length;++i) {
-                var x = data[j].data[i];
-                if (x[0] == date) {
-                   plot.highlight(j,i);
-                   labels.push({"label":data[j].label,"val":data[j].data[i][1]});
-                   break
-                }
-             }
-          }
+	  plot.unhighlight();
+	  var labels=[];
+          var count=0;
+	  for (var j=0; j<data.length; ++j) { 
+		  for (i=0;i<data[j].data.length;++i) {
+		var x = data[j].data[i];
+		if (x[0] == date && data[j].label) {
+			plot.highlight(j,i);
+			labels.push({"label":data[j].label,"val":data[j].data[i][1]});
+                        count++;
+			break
+		}
+		  }
+	  }
           // Convert to javascript date object
           date = new Date(date);
-          $("#tooltip").html(tooltipFormatter(date,labels)).css({top: item.pageY-$("#tooltip").height()+$("#tooltip").height()/2-5, left: item.pageX+15}).fadeIn(200);
+          if (count>0)
+	     $("#tooltip").html(tooltipFormatter(date,labels)).css({top: item.pageY-$("#tooltip").height()+$("#tooltip").height()/2-5, left: item.pageX+15}).fadeIn(200);
        } else {
-          $("#tooltip").hide();
-          plot.unhighlight();
+	  $("#tooltip").hide();
+	  plot.unhighlight();
        }
    });
    $(div).mouseleave(function() {
@@ -131,16 +147,15 @@ function plotLines(div,results) {
 function plotPie(div, data) {
    $.plot($(div), data, {
       series: {
-          pie: {
-              show: true,
-              radius: 1,
-              label: { radius: 3/4,
-                       show: true,
-                       formatter: function(label, series){
-                          return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-                       },
-                     }
-          }
+	  pie: {
+			show: true,
+			radius: 1,
+              stroke: { color: "#eee", width: 0.5 },
+			label: { radius: 5/8, 
+				 show: true, 
+                       threshold: 0.01,
+			  }
+	  }
       },
       legend: { show: false }
    });
@@ -164,48 +179,28 @@ function processData(project) {
    var upstreamFail;
    var upstreamMiss;
 
-   if (project == "nova") {
-      try {
-         success = novaSuccess;
-         fail = novaFail;
-         miss = novaMiss;
-      } catch (err) {
-         success = [];
-         fail = [];
-         miss = [];
-      }
+   project = project.toLowerCase();
 
-      try {
-         upstreamSuccess = upstreamNovaSuccess;
-         upstreamFail = upstreamNovaFail;
-         upstreamMiss = upstreamNovaMiss;
-      } catch (err) {
-         upstreamSuccess = [];
-         upstreamFail = [];
-         upstreamMiss = [];
-      }
-   } else if (project == "neutron") {
-      try {
-         success = neutronSuccess;
-         fail = neutronFail;
-         miss = neutronMiss;
-      } catch (err) {
-         success = [];
-         fail = [];
-         miss = [];
-      }
-      try {
-         upstreamSuccess = upstreamNeutronSuccess;
-         upstreamFail = upstreamNeutronFail;
-         upstreamMiss = upstreamNeutronMiss;
-      } catch (err) {
-         upstreamSuccess = [];
-         upstreamFail = [];
-         upstreamMiss = [];
-      }
-   } else {
-      return null;
+   try {
+      success = window[project+'Success'];
+      fail = window[project+'Fail'];
+      miss = window[project+'Miss'];
+   } catch (err) {
+      success = []; 
+      fail = [];
+      miss = [];
    }
+
+   try {
+      upstreamSuccess = window['upstream'+project+'Success'];
+      upstreamFail = window['upstream'+project+'Fail'];
+      upstreamMiss = window['upstream'+project+'Miss'];
+   } catch (err) {
+      upstreamSuccess = []; 
+      upstreamFail = [];
+      upstreamMiss = []; 
+   }
+
    var outage = [];
    for (var i=0; i<miss.length; ++i) {
       var date = miss[i][0];
@@ -228,60 +223,78 @@ function processData(project) {
          outage.push([date,0]);
    }
    var sums = [sum(success),sum(fail),sum(miss)];
-   var results = [{label: 'Success', color: '#356AA0', data: success, points: {symbol: "triangle"}},
-                {label: 'Failed', color: '#CD4B4B', data: fail, points: {symbol: "square"}},
-                {label: 'Missed', color: '#555', data: miss, points: {symbol: "circle"}},
-                {label: 'Upstream Success', color: '#6755E3', data: upstreamSuccess, points: {symbol: "triangle"}},
-                {label: 'Upstream Failed', color: '#01FCEF', data: upstreamFail, points: {symbol: "square"}},
-                {label: 'Upstream Missed', color: '#59DF00', data: upstreamMiss, points: {symbol: "circle"}},
-                {label: 'Outage', color: 'RED', data: outage, points: {symbol: "exclamation"}, lines: {show: false}}]
+   var results = [{label: 'Success', color: '#356AA0', data: success, points: {show: true, symbol: "triangle"}}, 
+                {data: success, color: '#356AA0', lines: {show: true, lineWidth: 2}, curvedLines: {apply: true} },
+		{label: 'Failed', color: '#CD4B4B', data: fail, points: {show: true, symbol: "square"}},
+                {data: fail, color: '#CD4B4B', lines: {show: true, lineWidth: 2}, curvedLines: {apply: true} },
+		{label: 'Missed', color: '#555', data: miss, points: {show: true, symbol: "circle"}},
+                {data: miss, color: '#555', lines: {show: true, lineWidth: 2}, curvedLines: {apply: true} },
+		{label: 'Upstream Success', color: '#6755E3', data: upstreamSuccess, points: {show: true, symbol: "triangle"}},
+                {data: upstreamSuccess, color: '#6755E3', lines: {show: true, lineWidth: 2}, curvedLines: {apply: true} },
+		{label: 'Upstream Failed', color: '#01FCEF', data: upstreamFail, points: {show: true, symbol: "square"}},
+                {data: upstreamFail, color: '#01FCEF', lines: {show: true, lineWidth: 2}, curvedLines: {apply: true} },
+		{label: 'Upstream Missed', color: '#59DF00', data: upstreamMiss, points: {show: true, symbol: "circle"}},
+                {data: upstreamMiss, color: '#59DF00', lines: {show: true, lineWidth: 2}, curvedLines: {apply: true} },
+		{label: 'Outage', color: 'RED', data: outage, points: {show: true, symbol: "exclamation"}, lines: {show: false}}]
    return [sums,results];
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
 // On document load, get the data, plot, and setup various options using JQuery
 $(document).ready(function() {
    // Set up the datepicker divs
    $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
-   $('#total').html("Total: " + (totalSuccess+totalFail+totalMiss));
-   $('#success').html("Success: " + totalSuccess);
-   $('#failed').html("Failed: " + totalFail);
-   $('#missed').html("Missed: " + totalMiss);
+   $('#total').html(totalSuccess+totalFail+totalMiss);
+   $('#success').html(totalSuccess);
+   $('#failed').html(totalFail);
+   $('#missed').html(totalMiss);
+   $('#totalps').html(patchsetSuccess+patchsetFail+patchsetMiss);
+   $('#successps').html(patchsetSuccess);
+   $('#failedps').html(patchsetFail);
+   $('#missedps').html(patchsetMiss);
 
-   // Process the nova data and setup the nova charts
-   var novaData = processData("nova");
-   var novaSums = novaData[0];
-   var totalNova = novaSums[0] + novaSums[1] + novaSums[2];
-   $("#novaInfo").html("<h3>Total: " + totalNova + "</h3><h3>Success: " + novaSums[1] + "</h3><h3>Failed: " + novaSums[0] + "</h3><h3>Missed: " + novaSums[2] + "</h3>");
-   if (totalNova > 0) {
-      novaData = novaData[1];
-      insertCheckBoxes("#novachartlegend", novaData, "nova");
-      $("#novachartlegend").find("input").click(function() {plotLines("#novachart", novaData);});
-      plotLines("#novachart",novaData);
+   for (p in projects) {
+      var proj = projects[p].toLowerCase();
+      $("#projectStats").append("<h3>" + proj.capitalize() + ":</h3>")
+      $("#projectStats").append("<div id=\"" + proj + "Info\" class=\"projectInfo\"></div>"); 
+      $("#main").append("<table class=\"graphtable\"><tr class=\"graphheader\"><td colspan=\"2\"><h3 class=\"inline\">"+proj.capitalize()+" Tests</h3><div class=\"legend\" id=\"" + proj + "chartlegend\"></div></td></tr><tr><td class=\"linechart\" id=\""+proj+"chart\"></td><td class=\"piechart\" id=\""+proj+"piechart\"></td></tr></table>");
+	// Process the nova data and setup the nova charts
+	var data = processData(proj);
+	var sums = data[0];
+	var total = sums[0] + sums[1] + sums[2];
+	$("#"+proj+"Info").html("<strong>Total: " + total + "</strong><br /><strong>Success: " + sums[0] + "</strong><br /><strong>Failed: " + sums[1] + "</strong><br /><strong>Missed: " + sums[2] + "</strong>");
+	if (total > 0) {
+		data = data[1];
+		insertCheckBoxes("#"+proj+"chartlegend", data, proj);
+		$("#"+proj+"chartlegend").find("input").on("click", { proj: proj, data: data }, function(event) {plotLines("#"+event.data.proj+"chart", event.data.data); } );
+		plotLines("#"+proj+"chart",data);
 
-      var novapiedata = [{"label": "Failed", "data": novaSums[1], "color": "#CD4B4B"},
-                     {"label": "Success", "data": novaSums[0], "color": "#356AA0"},
-                     {"label": "Missed", "data": novaSums[2], "color": "#555"}];
-      plotPie("#novapiechart", novapiedata);
-   } else {
-      $("#novachart").html("<p>No data available or has been unselected in data model.</p>").css({height: 'auto'});
+		var piedata = [{"label": "Failed", "data": sums[1], "color": "#CD4B4B"},
+			  {"label": "Success", "data": sums[0], "color": "#356AA0"},
+			  {"label": "Missed", "data": sums[2], "color": "#555"}];
+		plotPie("#"+proj+"piechart", piedata);
+	} else {
+		$("#"+proj+"chart").html("<p>No data available or " + proj + " has been unselected in data model.</p>").css({height: 'auto'});
+	}
    }
 
-   // Process the neutron data and setup the neutron charts
-   var neutronData = processData("neutron");
-   var neutronSums = neutronData[0];
-   var totalNeutron = neutronSums[0] + neutronSums[1] + neutronSums[2];
-   $("#neutronInfo").html("<h3>Total: " + totalNeutron + "</h3><h3>Success: " + neutronSums[1] + "</h3><h3>Failed: " + neutronSums[0] + "</h3><h3>Missed: " + neutronSums[2] + "</h3>");
-   if (totalNeutron > 0) {
-      neutronData = neutronData[1];
-      insertCheckBoxes("#neutronchartlegend", neutronData, "neutron");
-      $("#neutronchartlegend").find("input").click(function() {plotLines("#neutronchart", neutronData);});
-      plotLines("#neutronchart",neutronData);
-
-      var neutronpiedata = [{"label": "Failed", "data": neutronSums[1], "color": "#CD4B4B"},
-                     {"label": "Success", "data": neutronSums[0], "color": "#356AA0"},
-                     {"label": "Missed", "data": neutronSums[2], "color": "#555"}]
-      plotPie("#neutronpiechart", neutronpiedata);
-   } else {
-      $("#neutronchart").html("<p>No data available or has been unselected in data model.</p>").css({height: 'auto'});
-   }
+   $("#sidebar").css({"width": "auto", "max-width": "200px"});
+   $("#sidebar").width("auto");
+   $("#main").css("padding-left", 20);
+   $("#print").click(function(e) {
+      var win = window.open();
+      win.document.write("<table>");
+      for (p in projects) {
+         var proj = projects[p].toLowerCase();
+         win.document.write("<tr><td><h3>"+proj+"</h3>"+$("#"+proj+"Info").html()+"</td>");
+			win.document.write("<td><img src=\""+$("#"+proj+"chart").children()[0].toDataURL()+"\"/></td>");
+			win.document.write("<td><img src=\""+$("#"+proj+"piechart").children()[0].toDataURL()+"\"/></td></tr>");
+      }
+      win.document.write("</table>");
+      win.print();
+      win.close();
+   });
 });

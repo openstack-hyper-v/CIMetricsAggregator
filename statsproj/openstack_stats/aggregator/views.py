@@ -12,29 +12,92 @@ from django.http import HttpResponse
 from aggregator.models import *
 from datetime import timedelta, datetime
 import time
+import json
 
 # Simple index page renderer
 @login_required
 def index(request):
    data = Source.objects.values('worker').distinct()
+   creports = CombinedReport.objects.all()
    template = loader.get_template('aggregator/index.html')
    context = RequestContext(request, {
       'workers': data,
+      'combinedreports': creports,
    })
    return HttpResponse(template.render(context))
 
-# Calculate the details for the specified worker, then render the template with the corresponding data
 @login_required
-def detail(request, name):
+def combinedreport(request, name):
+   workers = CombinedReport.objects.filter(name=name).values('workers')[0]['workers'] 
+   worker_arr = eval(workers)
    # Get the data for the specified worker
-   mainDataSet = getWorkerSpecifiedData(request, name)
-   mainData = mainDataSet[2]
    timeGranular = False
    if request.method == "POST":
       tg = request.POST.get("timeGranular","")
       if tg:
          timeGranular = True
-   _mainResults = _getWorkerDetails(mainData, timeGranular, name, True)
+   _mainResults = {}
+   mainDataSet = None
+
+   startDate = None
+   endDate = None
+   for worker in worker_arr:
+      if worker=='Jenkins':
+         continue
+      startDate, endDate, data = getWorkerSpecifiedData(request, worker)
+      if mainDataSet == None:
+         mainDataSet = data
+      else:
+         mainDataSet = mainDataSet | data
+
+   mainDataSet = mainDataSet.distinct()
+
+   _projects_tmp = []
+   for i in range(0, len(worker_arr), 1):
+      worker = worker_arr[i]
+      details = _getWorkerDetails(mainDataSet, timeGranular, worker, True)
+      for key in details:
+         _mainResults[key] = details[key]
+      _projects_tmp += list(Source.objects.filter(worker=worker).values_list('project', flat=True).distinct())
+
+   _projects = []
+   for i in range(0, len(_projects_tmp), 1):
+      _projects += [_projects_tmp[i].split('/')[1]]
+
+   upstreamDataSet = getWorkerSpecifiedData(request, "Jenkins")
+   upstreamData = upstreamDataSet[2]
+   _upstreamResults = _getWorkerDetails(upstreamData, timeGranular, "Jenkins", False)
+
+   context = {
+      'mainResults': _mainResults,
+      'upstreamResults': _upstreamResults,
+      'start': startDate,
+      'end': endDate,
+      'granular': timeGranular,
+      'name': name,
+      'workers': workers
+      }
+
+   context['projects'] = json.dumps(_projects)
+
+   return render_to_response("aggregator/detail.html", context, context_instance = RequestContext(request))
+
+
+# Calculate the details for the specified worker, then render the template with the corresponding data
+@login_required
+def detail(request, name):
+   # Get the data for the specified worker
+   startDate, endDate, mainDataSet = getWorkerSpecifiedData(request, name)
+   timeGranular = False
+   if request.method == "POST":
+      tg = request.POST.get("timeGranular","")
+      if tg:
+         timeGranular = True
+   _mainResults = _getWorkerDetails(mainDataSet, timeGranular, name, True)
+   _projects_tmp = list(Source.objects.filter(worker=name).values_list('project', flat=True).distinct())
+   _projects = []
+   for i in range(0, len(_projects_tmp), 1):
+      _projects += [_projects_tmp[i].split('/')[1]]
 
    if (name != "Jenkins"):
       # Get the upstream data (Jenkins)
@@ -44,8 +107,8 @@ def detail(request, name):
       context = {
          'mainResults': _mainResults,
          'upstreamResults': _upstreamResults,
-         'start': mainDataSet[0],
-         'end': mainDataSet[1],
+	 'start': startDate,
+	 'end': endDate,
          'granular': timeGranular,
          'name': name
       }
@@ -53,55 +116,12 @@ def detail(request, name):
       context = {
          'mainResults': _mainResults,
          'upstreamResults': list(),
-         'start': mainDataSet[0],
-         'end': mainDataSet[1],
+	 'start': startDate,
+	 'end': endDate,
          'granular': timeGranular,
          'name': name
       }
-
-      #context = {
-#        'novaSuccess': list(mainResults[0]),
-#        'novaFail': list(mainResults[1]),
-#        'novaMiss': list(mainResults[2]),
-#        'neutronSuccess': list(mainResults[3]),
-#        'neutronFail': list(mainResults[4]),
-#        'neutronMiss': list(mainResults[5]),
-#        'totalSuccess': mainResults[6],
-#        'totalFail': mainResults[7],
-#        'totalMiss': mainResults[8],
-#        'upstreamNovaSuccess': list(upstreamResults[0]),
-#        'upstreamNovaFail': list(upstreamResults[1]),
-#        'upstreamNovaMiss': list(upstreamResults[2]),
-#        'upstreamNeutronSuccess': list(upstreamResults[3]),
-#        'upstreamNeutronFail': list(upstreamResults[4]),
-#        'upstreamNeutronMiss': list(upstreamResults[5]),
- #        'name': name,
-#        'start': mainDataSet[0],
-#        'end': mainDataSet[1],
- #        'granular': timeGranular,
-  #    }
-#   else:
-#      context = {
-#        'novaSuccess': list(mainResults[0]),
-#        'novaFail': list(mainResults[1]),
-#        'novaMiss': list(mainResults[2]),
-#        'neutronSuccess': list(mainResults[3]),
-#        'neutronFail': list(mainResults[4]),
-#        'neutronMiss': list(mainResults[5]),
-#        'totalSuccess': mainResults[6],
-#        'totalFail': mainResults[7],
-#        'totalMiss': mainResults[8],
-#        'upstreamNovaSuccess': list(),
-#        'upstreamNovaFail': list(),
-#        'upstreamNovaMiss': list(),
-#        'upstreamNeutronSuccess': list(),
-#        'upstreamNeutronFail': list(),
-#        'upstreamNeutronMiss': list(),
- #        'name': name,
-#        'start': mainDataSet[0],
-#        'end': mainDataSet[1],
-#         'granular': timeGranular,
-#      }
+   context['projects'] = json.dumps(_projects)
 
    return render_to_response("aggregator/detail.html", context, context_instance = RequestContext(request))
 
@@ -116,7 +136,7 @@ def getWorkerSpecifiedData(request, name):
       endDate = request.POST.get("end","")
    s = datetime.strptime(startDate,'%Y-%m-%d')
    e = datetime.strptime(endDate,'%Y-%m-%d')
-   return [startDate, endDate, data.filter(date__range=[s, e])]
+   return startDate,endDate,data.filter(date__range=[s, e])
 
 # Insert data into a dict of date/counts, or increase the count
 def insertOrIncrement(container, val):
@@ -132,8 +152,8 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
       if source.worker != name:
          continue
       project = source.project
-      if project in ret:
-         continue
+      #if project in ret:
+         #continue
       results = data.filter(project=project).order_by("time")
       _success = {}
       _fail = {}
@@ -150,17 +170,17 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
          elif d.missed:
             insertOrIncrement(_miss, timeOffset)
          else:
-            insertOrIncrement(_fail, timeOffset)
+            insertOrIncrement(_fail, timeOffset) 
 
       success = []
       fail = []
       miss = []
       for key in _success:
-         success += [[key,_success[key]]]
+	 success += [[key,_success[key]]]
       for key in _fail:
-         fail += [[key,_fail[key]]]
+	 fail += [[key,_fail[key]]]
       for key in _miss:
-         miss += [[key,_miss[key]]]
+	 miss += [[key,_miss[key]]]
 
       success = sorted(success, key=lambda l:l[0])
       fail = sorted(fail, key=lambda l:l[0])
@@ -168,11 +188,11 @@ def _getWorkerDetails(data, timeGranular, name, getTotals):
       ret[project] = [success,fail,miss]
 
    if getTotals:
-      totalSuccess = len(list(data.filter(success=True)))
-      totalFail = len(list(data.filter(success=False,missed=False)))
-      totalMiss = len(list(data.filter(missed=True)))
-      ret["total"] = [totalSuccess, totalFail, totalMiss]
-
+      totalSuccess = data.filter(success=True)
+      totalFail = data.filter(success=False,missed=False)
+      totalMiss = data.filter(missed=True)
+      ret["total"] = [len(list(totalSuccess)), len(list(totalFail)), len(list(totalMiss))]
+      ret["patchset"] = [len(list(totalSuccess.values('cid','pid').distinct())), len(list(totalFail.values('cid','pid').distinct())), len(list(totalMiss.values('cid','pid').distinct()))]
    return ret
 
 # Get details for the worker, both Nova and Neutron data
@@ -197,7 +217,7 @@ def getWorkerDetails(data, timeGranular, getTotals):
       elif d.missed:
          insertOrIncrement(_novaMiss, timeOffset)
       else:
-         insertOrIncrement(_novaFail, timeOffset)
+         insertOrIncrement(_novaFail, timeOffset) 
 
    novaSuccess = []
    novaFail = []
@@ -233,7 +253,7 @@ def getWorkerDetails(data, timeGranular, getTotals):
       elif d.missed:
          insertOrIncrement(_neutronMiss, timeOffset)
       else:
-         insertOrIncrement(_neutronFail, timeOffset)
+         insertOrIncrement(_neutronFail, timeOffset) 
 
    neutronSuccess = []
    neutronFail = []
@@ -244,8 +264,8 @@ def getWorkerDetails(data, timeGranular, getTotals):
       neutronFail += [[key,_neutronFail[key]]]
    for key in _neutronMiss:
       neutronMiss += [[key,_neutronMiss[key]]]
-
-   # Sort the neutron data based on date/timestamp
+ 
+   # Sort the neutron data based on date/timestamp 
    neutronSuccess = sorted(neutronSuccess, key=lambda l:l[0])
    neutronFail = sorted(neutronFail, key=lambda l:l[0])
    neutronMiss = sorted(neutronMiss, key=lambda l:l[0])

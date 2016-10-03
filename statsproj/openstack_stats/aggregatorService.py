@@ -8,7 +8,7 @@ from datetime import datetime
 from time import sleep
 
 # Add headers to url request to masquerade as a JSON request
-def addheaders(req):
+def addHeaders(req):
    req.add_header('Content-Disposition', 'attachment')
    req.add_header('X-Content-Type-Options', 'nosniff')
    req.add_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
@@ -19,8 +19,12 @@ def addheaders(req):
 # Retrieve a list of details about a particular change ID
 def getGerritChangeRequest(cid):
    url = "https://review.openstack.org/changes/"+str(cid)+"/detail"
-   req = addheaders(urllib2.Request(url))
-   res = urllib2.urlopen(req)
+   req = addHeaders(urllib2.Request(url))
+   try:
+      res = urllib2.urlopen(req)
+      print "Getting change request from " + url
+   except:
+      print "could not open " + url
    # ignore first line
    for line in res:
       break
@@ -30,16 +34,22 @@ def getGerritChangeRequest(cid):
 def getChanges(project):
    # get all open and merged changes (ignoring abandoned)
    url = "https://review.openstack.org/changes/?q=status:open+project:"+project+"&q=status:merged+project:"+project
-   req = addheaders(urllib2.Request(url))
-   res = urllib2.urlopen(req)
+   req = addHeaders(urllib2.Request(url))
+   try:
+      res = urllib2.urlopen(req)
+      print "Getting changes from " + url
+   except:
+      print "could not open " + url
    # ignore first line
    for line in res:
       break
+
    parser = ijson.parse(res)
    cids = []
    for prefix, event, value in parser:
       if "_number" in prefix:
          cids.append(value)
+
    return cids
 
 # Merge the change details for a worker/project into the DB
@@ -65,20 +75,15 @@ def mergeDetails(cids, worker, project):
             if 'patch' in dat[0].lower():
                patch = dat[0].split()
                patch = re.sub("[^0-9]","",patch[len(patch)-1])
-            #if ('build successful' in value.lower() or 'build succeeded' in value.lower()) and not ('failure' in value.lower()):
-            # if the build failed, the test has failed
-            if 'build failed' in value.lower() or 'build unsuccessful' in value.lower():
+            if 'build successful' in value.lower() or 'build succeeded' in value.lower() and not "FAILURE" in value:
+               success = True 
+            elif 'build failed' in value.lower() or 'build unsuccessful' in value.lower() or "FAILURE" in value:
                success = False
-            # if the build succeeded but test failed...
-            elif ('build successful' in value.lower() or 'build succeeded' in value.lower()) and 'failure' in value.lower():
-               success = False
-            elif ('build successful' in value.lower() or 'build succeeded' in value.lower()) and not ('failure' in value.lower()):
-               success = True
             else:
                continue
             try:
                item = [int(cid),int(patch),date.date(),date.time(),success]
-               data += [item]
+               data += [item] 
             except:
                continue
          elif prefix == 'messages.item.message' and author != worker:
@@ -101,7 +106,7 @@ def mergeDetails(cids, worker, project):
 
 # Merge a chunk of changes.  Helps with making the output seem to be more realtime
 def mergeChunk(data, missed, worker, project):
-   missed = [x for x in missed if not match(x,data)]
+   missed = [x for x in missed if not match(x,data)] 
    missed = unique(missed)
    for item in data:
       try:
@@ -120,7 +125,7 @@ def mergeChunk(data, missed, worker, project):
                                                    success=False,missed=True)
       except Exception, e:
          print str(e)
-         continue
+         continue  
 
 # Get a list of unique changes (i.e. matching CID and PID across a list)
 def unique(data):
@@ -156,9 +161,9 @@ def foundIn(item, objects):
 
 # Look for any jobs marked as missed that were later submitted
 # (i.e. fix up the false negatives)
-def fixup(project,worker, change):
-   missed = change.objects.filter(project=project,worker=worker,missed=True)
-   unMissed = change.objects.filter(project=project,worker=worker,missed=False)
+def fixup(project,worker):
+   missed = Change.objects.filter(project=project,worker=worker,missed=True)
+   unMissed = Change.objects.filter(project=project,worker=worker,missed=False)
    erroneous = [x for x in missed if foundIn(x,unMissed)]
    for c in erroneous:
       c.delete()
@@ -172,7 +177,8 @@ if __name__ == "__main__":
       for source in sources:
          project = source.project
          worker = source.worker
-         fixup(project, worker, Change)
+         print "Fixing entries for " + project + " and " + worker
+         fixup(project, worker)
          threads.append(threading.Thread(target=workerThread, args=(project, worker)))
       # start threads
       for thread in threads:
