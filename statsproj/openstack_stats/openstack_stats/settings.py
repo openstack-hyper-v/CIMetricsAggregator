@@ -25,7 +25,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = ["cimetrics.cloudapp.net", ".cloudapp.net", ".cimetrics.cloudappn.et"]
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
