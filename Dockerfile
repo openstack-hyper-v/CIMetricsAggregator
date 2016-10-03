@@ -37,7 +37,9 @@ RUN /etc/init.d/mysql start; mysql -e "create database Metrics; GRANT ALL PRIVIL
 # Setup the django superuser
 RUN /etc/init.d/mysql start; echo "from django.contrib.auth.models import User; User.objects.create_superuser('root', 'admin@example.com', 'cimetrics')" | python manage.py shell
 
+RUN apt-get -y install supervisor
+RUN apt-get -y install upstart
+
 
 RUN cp /CIMetricsTool/conf.d/nginx.conf /etc/nginx/sites-enabled/nginx.conf
 RUN cp /CIMetricsTool/conf.d/supervisor.conf /etc/supervisor/conf.d/
-CMD ["supervisord", "-n"]
