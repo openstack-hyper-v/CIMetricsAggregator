@@ -113,14 +113,15 @@ The service that actually queries Gerrit and saves the resultant data into the d
 Docker Instructions (Ubuntu)
 ===================
 A docker file has been created FROM ubuntu which can be used to set this up pretty easily.
-Once the docker container is started ... you presently need to 'exec' a script to start up the website and begin collecting data from the public stores.  If you change the sources or reports, presently, you will need to stop the aggregator and restart it.
+Once the docker container is started ... you presently need to 'exec' a script to start up the website and begin collecting data from the public stores.  If you change the sources or reports, presently, you will need to stop the aggregator and restart it.<br />
 
-To Start the Container and see it up on port80 of your docker host ... 
+To Start the Container and see it up on port <b>80</b> of your docker host ...  <br /><br />
 <code>
-  docker pull msopenstack/ci_metrics_aggregator
-  docker run -p 80:80 -P -d --name cim msopenstack/ci_metrics_aggregator 
-  docker exec cim /CIMetricsTool/bin/start-everything.sh
-</code> 
+  docker pull msopenstack/ci_metrics_aggregator<br /><br />
+
+  docker run <b>-p 80:80</b> -P -d --name cim msopenstack/ci_metrics_aggregator<br /><br />
   
+  docker exec cim /CIMetricsTool/bin/start-everything.sh<br /><br />  
+</code>  
 
 
