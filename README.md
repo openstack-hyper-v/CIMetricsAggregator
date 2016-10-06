@@ -108,3 +108,19 @@ Step 7:<br />
 Restart apache<br /><br />
 Step 8:<br />
 The service that actually queries Gerrit and saves the resultant data into the database is found in <code>aggregatorService.py</code>.  This service must be started manually, or set to autorun on boot.<br /><br />
+
+
+Docker Instructions (Ubuntu)
+===================
+A docker file has been created FROM ubuntu which can be used to set this up pretty easily.
+Once the docker container is started ... you presently need to 'exec' a script to start up the website and begin collecting data from the public stores.  If you change the sources or reports, presently, you will need to stop the aggregator and restart it.
+
+To Start the Container and see it up on port80 of your docker host ... 
+<code>
+  docker pull msopenstack/ci_metrics_aggregator
+  docker run -p 80:80 -P -d --name cim msopenstack/ci_metrics_aggregator 
+  docker exec cim /CIMetricsTool/bin/start-everything.sh
+</code> 
+  
+
+
