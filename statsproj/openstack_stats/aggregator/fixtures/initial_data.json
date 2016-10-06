@@ -1,10 +1,9 @@
-[{"pk": 2, "model": "aggregator.source", "fields": {"project": "openstack/nova", "worker": "Hyper-V CI"}},
- {"pk": 3, "model": "aggregator.source", "fields": {"project": "openstack/neutron", "worker": "Hyper-V CI"}},
- {"pk": 8, "model": "aggregator.source", "fields": {"project": "openstack/nova", "worker": "Jenkins"}},
- {"pk": 9, "model": "aggregator.source", "fields": {"project": "openstack/neutron", "worker": "Jenkins"}}, 
- {"pk": 10, "model": "aggregator.source", "fields": {"project": "openstack/nova", "worker": "Microsoft Hyper-V CI"}}, 
- {"pk": 11, "model": "aggregator.source", "fields": {"project": "openstack/neutron", "worker": "Microsoft Hyper-V CI"}}, 
- {"pk": 13, "model": "aggregator.source", "fields": {"project": "openstack/cinder", "worker": "Jenkins"}}, 
- {"pk": 15, "model": "aggregator.source", "fields": {"project": "openstack/cinder", "worker": "Microsoft iSCSI CI"}}, 
- {"pk": 16, "model": "aggregator.source", "fields": {"project": "openstack/manila", "worker": "Jenkins"}}, 
- {"pk": 17, "model": "aggregator.source", "fields": {"project": "openstack/manila", "worker": "Microsoft Manila CI"}}]
+[
+ {"pk": 1, "model": "aggregator.source", "fields": {"project": "openstack/nova", "worker": "Jenkins"}},
+ {"pk": 2, "model": "aggregator.source", "fields": {"project": "openstack/neutron", "worker": "Jenkins"}}, 
+ {"pk": 3, "model": "aggregator.source", "fields": {"project": "openstack/nova", "worker": "Microsoft Hyper-V CI"}}, 
+ {"pk": 4, "model": "aggregator.source", "fields": {"project": "openstack/neutron", "worker": "Microsoft Hyper-V CI"}}, 
+ {"pk": 5, "model": "aggregator.source", "fields": {"project": "openstack/cinder", "worker": "Jenkins"}}, 
+ {"pk": 6, "model": "aggregator.source", "fields": {"project": "openstack/cinder", "worker": "Microsoft iSCSI CI"}}, 
+ {"pk": 7, "model": "aggregator.source", "fields": {"project": "openstack/manila", "worker": "Jenkins"}}, 
+ {"pk": 8, "model": "aggregator.source", "fields": {"project": "openstack/manila", "worker": "Microsoft Manila CI"}}]

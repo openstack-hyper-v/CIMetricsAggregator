@@ -41,4 +41,3 @@ RUN apt-get -y install supervisor
 RUN apt-get -y install upstart
 
 RUN cp /CIMetricsTool/conf.d/nginx.conf /etc/nginx/sites-enabled/default
-RUN cp /CIMetricsTool/conf.d/supervisor.conf /etc/supervisor/conf.d/
