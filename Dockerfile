@@ -23,7 +23,7 @@ RUN pip install mysql-python
 RUN pip install pymysql
 
 RUN apt-get -y install git
-RUN git clone https://github.com/seansp/CIMetricsAggregator.git /CIMetricsTool
+RUN git clone https://github.com/openstack-hyper-v/CIMetricsAggregator.git /CIMetricsTool
 
 EXPOSE 80
 EXPOSE 8000
