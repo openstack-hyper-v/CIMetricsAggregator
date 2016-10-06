@@ -50,9 +50,10 @@
 			labelWidth = ctx.measureText(label).width;
 			if(labelWidth > legendWidth) legendWidth = labelWidth
 		}
+                console.log(num_labels);
 		var LEGEND_BOX_WIDTH = 22; // color box
 		var PADDING_RIGHT = 5;
-		var LEGEND_BOX_LINE_HEIGHT = 18;
+		var LEGEND_BOX_LINE_HEIGHT = 9;
 		legendWidth = legendWidth + LEGEND_BOX_WIDTH + PADDING_RIGHT;
 		legendHeight = num_labels * LEGEND_BOX_LINE_HEIGHT;
 		var x, y;
@@ -89,7 +90,7 @@
 			label = s.label;
 			if(!label) continue;
 			if(lf) label = lf(label, s);
-			posy = y + (i * 18);
+			posy = y + (i * LEGEND_BOX_LINE_HEIGHT);
 			ctx.fillStyle = options.legend.labelBoxBorderColor;
 			ctx.fillRect(x, posy, 18, 14);
 			ctx.fillStyle = "#FFF";

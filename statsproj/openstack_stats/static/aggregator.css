@@ -58,7 +58,7 @@ a:hover {
    margin-right: 5px;
 }
 
-#novaInfo, #neutronInfo {
+.projectInfo {
    font-size: 10pt;
    padding-left: 10px;
    padding-bottom: 10px;
@@ -69,17 +69,24 @@ a:hover {
    background-color: #eee;
    padding-left: 5px;
    height: 100%;
-   width: 200px;
-   max-width: 300px;
+   width: auto;
+   min-width: 200px;
+   max-width: 200px;
    float: left;
    padding-right: 5px;
 }
 
+#sidebar td {
+   padding-right: 5px;
+}
+
 #main {
-   height: auto;
-   margin: 0;
-   padding-left: 225px;
+   height: 100%;
    padding-right: 10px;
+   padding-left 10px;
+   margin: 0;
+   overflow-y: auto;
+   overflow-x: hidden;
 }
 
 #highlighted {
@@ -93,7 +100,7 @@ a:hover {
 }
 
 #main form {
-   padding-bottom: 20px;
+   padding-bottom: 15px;
 }
 
 #main h3, p {
@@ -101,9 +108,10 @@ a:hover {
 }
 
 .graphtable {
+   border-spacing: 0;
    width: 99%;
    margin-bottom: 10px;
-   padding-right: 5px;
+   padding: 0;
    padding-bottom: 5px;
    min-width: 600px;
    background: #eee;
@@ -117,14 +125,15 @@ a:hover {
 
 .piechart {
    display: table-cell;
-   width: 250px;
+   padding: 5px;
+   width: 220px;
 }
 
 .linechart {
    box-sizing: border-box;
    display: inline-block;
    background-color: #eee;
-   width: 98%;
+   width: 100%;
    height: 250px;
    padding: 0;
    margin: 0;
@@ -171,4 +180,7 @@ a:hover {
    border-right-color: #000;
    border-width: 13px;
    margin-top: -13px;
+}
+.graphheader {
+   margin: 0;
 }

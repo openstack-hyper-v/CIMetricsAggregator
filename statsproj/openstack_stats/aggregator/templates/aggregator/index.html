@@ -3,7 +3,7 @@
 </head>
 <body>
 <div id="index">
-<h1>Reports:</h1>
+<h1>CI Reports:</h1>
 {% if workers %}
    <ul>
    {% for worker in workers %}
@@ -13,9 +13,19 @@
 {% else %}
    <p> No data available!</p>
 {% endif %}
+<h1>Combined Reports:</h1>
+{% if combinedreports %}
+   <ul>
+   {% for group in combinedreports %}
+      <li><a href="/static/loadcombined.php?w={{ group.workers }}&name={{ group.name }}">{{ group.name }}</a></li>
+   {% endfor %}
+   </ul>
+{% else %}
+   <p>No combined reports defined!</p>
+{% endif %}
 <hr \>
-Copyright 2014 Gabriel Loewen
 <a style="float:right;" href="/accounts/logout">Logout</a><br />
 <a style="float:right;" href="/admin">Manage</a>
+<p>Copyright 2014-2015 Gabriel Loewen</p>
 </div>
 </body>
